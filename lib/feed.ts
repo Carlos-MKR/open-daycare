@@ -1,4 +1,30 @@
+import type { ComponentType } from "react";
+import {
+  BellIcon,
+  ChildrenIcon,
+  HomeIcon,
+  UserIcon,
+  type IconProps,
+} from "@/components/ui/icons";
+
 export type PostVariant = "achievement" | "activity" | "announcement";
+
+export type NavItemId = "feed" | "children" | "announcements" | "account";
+
+export type NavItem = {
+  id: NavItemId;
+  href: string;
+  label: string;
+  icon: ComponentType<IconProps>;
+};
+
+// Compartido por la sidebar (desktop) y la tab bar (móvil). SPEC 02.
+export const NAV_ITEMS: NavItem[] = [
+  { id: "feed", label: "Feed", href: "#", icon: HomeIcon },
+  { id: "children", label: "Niños", href: "#", icon: ChildrenIcon },
+  { id: "announcements", label: "Avisos", href: "#", icon: BellIcon },
+  { id: "account", label: "Mi cuenta", href: "#", icon: UserIcon },
+];
 
 // Contenido en español por diseño (texto visible); el código se nombra en inglés.
 export type FeedPost = {

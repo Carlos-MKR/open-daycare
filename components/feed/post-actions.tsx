@@ -10,7 +10,7 @@ export function PostActions({ likes, comments }: PostActionsProps) {
   return (
     <div className="mt-[16px] flex items-center gap-[18px] border-t border-line-faint pt-[14px]">
       <span className="flex items-center gap-[7px] text-[14px] font-bold text-liked">
-        <HeartIcon filled size={19} />
+        <HeartIcon size={19} />
         {likes}
       </span>
       <a

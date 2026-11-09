@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type IconProps = {
+export type IconProps = {
   size?: number;
   className?: string;
   strokeWidth?: number;

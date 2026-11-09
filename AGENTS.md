@@ -42,7 +42,10 @@ Next.js 16.4.5 + React 19 + Tailwind v4 app for a daycare platform. Currently a 
 
 - Playwright MCP: screenshots and any Playwright output must go in `.playwright-mcp/`.
 - context7 MCP: use it to fetch up-to-date framework docs (Next.js, React, Tailwind) before writing framework-specific code.
-
+- Lint ignora `references/**` (mockups estáticos).
 
 ## Reglas de código
 - Usar código limpio, nombres, funciones, variables etc en inglés.
+
+## Reglas de diseño
+- Toda pantalla o feature nuevo se especifica e implementa responsive desde su spec (móvil <768px / desktop ≥768px); ver SPEC 02.

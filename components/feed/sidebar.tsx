@@ -1,45 +1,15 @@
-import type { ReactNode } from "react";
 import { Avatar } from "@/components/ui/avatar";
-import {
-  BellIcon,
-  ChildrenIcon,
-  HomeIcon,
-  LogoutIcon,
-  PlusIcon,
-  SunIcon,
-  UserIcon,
-} from "@/components/ui/icons";
+import { LogoutIcon, PlusIcon } from "@/components/ui/icons";
+import { BrandMark } from "@/components/feed/brand-mark";
 import { NavLink } from "@/components/feed/nav-link";
-
-const NAV_ITEMS: Array<{
-  href: string;
-  label: string;
-  icon: ReactNode;
-  active?: boolean;
-}> = [
-  { label: "Feed", href: "#", active: true, icon: <HomeIcon size={19} /> },
-  { label: "Niños", href: "#", icon: <ChildrenIcon size={19} /> },
-  { label: "Avisos", href: "#", icon: <BellIcon size={19} /> },
-  { label: "Mi cuenta", href: "#", icon: <UserIcon size={19} /> },
-];
+import { NAV_ITEMS } from "@/lib/feed";
 
 export function Sidebar() {
   return (
-    <aside className="sticky top-0 flex h-screen w-[248px] flex-none flex-col border-r border-line bg-surface px-[16px] py-[24px]">
-      <a
-        href="#"
-        className="flex items-center gap-[11px] px-[8px] pt-[4px] pb-[22px]"
-      >
-        <div className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[12px] bg-linear-[155deg] from-accent-lighter to-accent">
-          <SunIcon size={21} className="text-white" />
-        </div>
-        <div>
-          <div className="font-display text-[17px] leading-none font-semibold text-ink">
-            OpenDayCare
-          </div>
-          <div className="mt-[2px] text-[11.5px] text-muted">Sala Soles</div>
-        </div>
-      </a>
+    <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-line bg-surface px-[16px] py-[24px] md:flex">
+      <div className="px-[8px] pb-[22px] pt-[4px]">
+        <BrandMark />
+      </div>
 
       <a
         href="#"
@@ -52,11 +22,11 @@ export function Sidebar() {
       <nav className="flex flex-1 flex-col gap-[4px]">
         {NAV_ITEMS.map((item) => (
           <NavLink
-            key={item.label}
+            key={item.id}
             href={item.href}
             label={item.label}
-            icon={item.icon}
-            active={item.active}
+            icon={<item.icon size={19} />}
+            active={item.id === "feed"}
           />
         ))}
       </nav>
@@ -70,7 +40,7 @@ export function Sidebar() {
             <div className="text-[14px] font-extrabold text-ink">
               Caro Giménez
             </div>
-            <div className="text-[12px] text-muted">Maestra · Soles</div>
+            <div className="text-[12px] text-muted">Maestra · Sala Soles</div>
           </div>
           <a
             href="#"
