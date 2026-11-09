@@ -19,11 +19,13 @@
 
   --color-accent: #f2937a;
   --color-accent-light: #f4977e;
+  --color-accent-lighter: #f8c3a8;
   --color-accent-strong: #ee8164;
   --color-accent-deep: #d9583c;
   --color-chip-active: #fbe3d8;
   --color-liked: #e0654a;
   --color-edit-link: #c5503a;
+  --color-caption: #8a7c6d;
 
   --color-success: #3e9b6c;
   --color-success-soft: #cfebd8;
