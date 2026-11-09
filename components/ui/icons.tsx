@@ -3,16 +3,17 @@ import type { ReactNode } from "react";
 type IconProps = {
   size?: number;
   className?: string;
+  strokeWidth?: number;
 };
 
-// Iconos SVG copiados de references/pantallas/feed.dc.html (estilo lucide).
+// Icono SVG copiado de la maqueta de referencia del proyecto.
 function Svg({
   size = 20,
   className,
   strokeWidth = 2,
   filled = false,
   children,
-}: IconProps & { strokeWidth?: number; filled?: boolean; children: ReactNode }) {
+}: IconProps & { filled?: boolean; children: ReactNode }) {
   return (
     <svg
       width={size}
@@ -104,6 +105,16 @@ export function CameraIcon(props: IconProps) {
     <Svg {...props}>
       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
       <circle cx="12" cy="13" r="4" />
+    </Svg>
+  );
+}
+
+export function ImageIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.6-3.6a2 2 0 0 0-2.8 0L6 21" />
     </Svg>
   );
 }
