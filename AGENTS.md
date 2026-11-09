@@ -42,3 +42,7 @@ Next.js 16.4.5 + React 19 + Tailwind v4 app for a daycare platform. Currently a 
 
 - Playwright MCP: screenshots and any Playwright output must go in `.playwright-mcp/`.
 - context7 MCP: use it to fetch up-to-date framework docs (Next.js, React, Tailwind) before writing framework-specific code.
+
+
+## Reglas de código
+- Usar código limpio, nombres, funciones, variables etc en inglés.
