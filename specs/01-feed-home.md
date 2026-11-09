@@ -1,6 +1,6 @@
 # SPEC 01 — Feed como Home (plantilla feed.dc.html)
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** ninguna
 > **Fecha:** 2026-11-08
 > **Objetivo:** Implementar la plantilla `references/pantallas/feed.dc.html` como la pantalla principal `/` de la app con estilo idéntico, contenido mock hardcodeado, sin autenticación ni base de datos.
