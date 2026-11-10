@@ -27,6 +27,21 @@
   --color-liked: #e0654a;
   --color-edit-link: #c5503a;
   --color-caption: #8a7c6d;
+  --color-placeholder: #b6a99b;
+  --color-chevron: #cbb89f;
+
+  --color-chip-allergy: #fbd8cc;
+  --color-chip-allergy-text: #d9684a;
+  --color-chip-link: #f9d2de;
+  --color-chip-link-text: #c56486;
+  --color-chip-pending: #f7e7a6;
+  --color-chip-pending-text: #9a7b1e;
+
+  --color-alert-bg: #fbdad6;
+  --color-alert-icon: #f4a8a0;
+  --color-alert-title: #c5413a;
+  --color-alert-text: #b25249;
+  --color-dashed-soft: #d8cbba;
 
   --color-success: #3e9b6c;
   --color-success-soft: #cfebd8;

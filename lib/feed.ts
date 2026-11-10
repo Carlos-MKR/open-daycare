@@ -18,15 +18,8 @@ export type NavItem = {
   icon: ComponentType<IconProps>;
 };
 
-// Un item queda activo si la ruta coincide exactamente (home) o es descendiente
-// de su href; los href "#" nunca matchean. Compartido por NavLink y TabLink.
-export function isNavActive(pathname: string, href: string): boolean {
-  if (href === "#") return false;
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
 // Compartido por la sidebar (desktop) y la tab bar (móvil). SPEC 02.
+// La lógica de estado activo vive en components/feed/nav-styles.ts.
 export const NAV_ITEMS: NavItem[] = [
   { id: "feed", label: "Feed", href: "/", icon: HomeIcon },
   { id: "children", label: "Niños", href: "/kids", icon: ChildrenIcon },
