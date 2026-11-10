@@ -1,6 +1,6 @@
 # SPEC 03 — Niños: listado `/kids` y perfil `/kids/[slug]`
 
-> **Estado:** Aprobado
+> **Estado:** implementado
 > **Depende de:** SPEC 01, SPEC 02
 > **Fecha:** 2026-11-10
 > **Objetivo:** Implementar las plantillas `references/pantallas/ninos.dc.html` y `references/pantallas/perfil-nino.dc.html` como las rutas `/kids` y `/kids/[slug]` con contenido mock hardcodeado, navegación real desde el menú y responsive móvil según el patrón de SPEC 02.
