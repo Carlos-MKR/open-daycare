@@ -25,7 +25,6 @@ export function MobileTabBar() {
             href={item.href}
             label={item.label}
             icon={<item.icon size={20} />}
-            active={item.id === "feed"}
           />
         ))}
       </nav>

@@ -26,7 +26,6 @@ export function Sidebar() {
             href={item.href}
             label={item.label}
             icon={<item.icon size={19} />}
-            active={item.id === "feed"}
           />
         ))}
       </nav>

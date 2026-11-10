@@ -1,14 +1,19 @@
-import type { ReactNode } from "react";
+"use client";
 
-// Enlace de navegación; inerte por decisión de la SPEC 01 (href="#").
+import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { isNavActive } from "@/lib/feed";
+
 type NavLinkProps = {
   href: string;
   label: string;
   icon: ReactNode;
-  active?: boolean;
 };
 
-export function NavLink({ href, label, icon, active = false }: NavLinkProps) {
+// Enlace de nav con estado activo derivado de la ruta actual (SPEC 03).
+export function NavLink({ href, label, icon }: NavLinkProps) {
+  const active = isNavActive(usePathname(), href);
+
   return (
     <a
       href={href}
