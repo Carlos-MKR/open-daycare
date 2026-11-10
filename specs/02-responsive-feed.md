@@ -36,12 +36,12 @@ No introduce datos persistentes. Mueve `NAV_ITEMS` de `sidebar.tsx` a `lib/feed.
 
 ## Acceptance criteria
 
-- [ ] A 922px el render es idéntico a la captura aprobada de SPEC 01 (`feed-impl-final-top.png`).
-- [ ] A 375px: sidebar oculta, top bar fija arriba, tab bar de 4 items fija abajo, FAB "+" visible.
-- [ ] En móvil no hay overflow horizontal (el contenido cabe a 375px sin scroll lateral).
-- [ ] Los tabs del móvil navegan nada (inercias `href="#"`), igual que desktop.
-- [ ] Las barras móviles usan solo tokens existentes (`bg-surface`, `border-line`, `chip-active`, gradiente del CTA).
-- [ ] npx tsc --noEmit y npm run lint pasan.
+- [x] A 922px el render es idéntico a la captura aprobada de SPEC 01 (`feed-impl-final-top.png`).
+- [x] A 375px: sidebar oculta, top bar fija arriba, tab bar de 4 items fija abajo, FAB "+" visible.
+- [x] En móvil no hay overflow horizontal (el contenido cabe a 375px sin scroll lateral).
+- [x] Los tabs del móvil navegan nada (inercias `href="#"`), igual que desktop.
+- [x] Las barras móviles usan solo tokens existentes (`bg-surface`, `border-line`, `chip-active`, gradiente del CTA).
+- [x] npx tsc --noEmit y npm run lint pasan.
 
 ## Decisions
 
