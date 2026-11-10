@@ -32,8 +32,16 @@
   --color-success-soft: #cfebd8;
   --color-activity: #2e89a6;
   --color-activity-soft: #c7e7f1;
-  --color-child-avatar: #a9d9e8;
-  --color-child-avatar-text: #1f7a93;
+  --color-avatar-sky: #a9d9e8;
+  --color-avatar-sky-text: #1f7a93;
+  --color-avatar-rose: #f4b8cc;
+  --color-avatar-rose-text: #c44a7a;
+  --color-avatar-mint: #b9dec4;
+  --color-avatar-mint-text: #3e8b62;
+  --color-avatar-amber: #f4dc8e;
+  --color-avatar-amber-text: #9a7b1e;
+  --color-avatar-violet: #c9b6e8;
+  --color-avatar-violet-text: #7b5fc0;
   --color-announcement: #4e72c8;
   --color-announcement-soft: #ccd8f4;
 }
