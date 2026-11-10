@@ -117,17 +117,17 @@ app/
 
 ## Acceptance criteria
 
-- [ ] `/` renderiza el feed con fondo cream `#F6ECDF` y superficies `#FFFDF9`, tipografía Fredoka/Nunito auto-alojada (sin llamadas de red a Google Fonts).
-- [ ] Sidebar de 248px sticky con logo OpenDayCare/Sala Soles, botón gradiente "Nueva publicación", "Feed" activo con fondo `#FBE3D8`/`#D9583C` y usuario "Caro Giménez".
-- [ ] Cabecera con eyebrow "GUARDERÍA · SALA SOLES" en `#D9583C`, h1 Fredoka "Buenas, Caro" y subtítulo "12 niños · martes 17 jun".
-- [ ] Composer con avatar "C", texto "Compartí un momento…" y chip de cámara en `#FBE3D8`.
-- [ ] Separador "PUBLICADO HOY" con línea.
-- [ ] Los 3 posts con badges correctos: LOGRO (#CFEBD8/#3E9B6C), ACTIVIDAD (#C7E7F1/#2E89A6), ANUNCIO (#CCD8F4/#4E72C8).
-- [ ] El post de ACTIVIDAD muestra el placeholder de foto dashed (#DBCDBA sobre #F4ECE1, 200px) con caption "Foto · pintando con témperas".
-- [ ] Todo lo clicable es inerte (`href="#"`): no navega a 404 y la consola de `next dev` no muestra errores ni warnings de hidratación.
-- [ ] npx tsc --noEmit pasa.
-- [ ] npm run lint pasa.
-- [ ] Captura de Playwright (en `.playwright-mcp/`) visualmente indistinguible de `references/screenshots/feed.png` (colores, espaciados, jerarquía).
+- [x] `/` renderiza el feed con fondo cream `#F6ECDF` y superficies `#FFFDF9`, tipografía Fredoka/Nunito auto-alojada (sin llamadas de red a Google Fonts).
+- [x] Sidebar de 248px sticky con logo OpenDayCare/Sala Soles, botón gradiente "Nueva publicación", "Feed" activo con fondo `#FBE3D8`/`#D9583C` y usuario "Caro Giménez".
+- [x] Cabecera con eyebrow "GUARDERÍA · SALA SOLES" en `#D9583C`, h1 Fredoka "Buenas, Caro" y subtítulo "12 niños · martes 17 jun".
+- [x] Composer con avatar "C", texto "Compartí un momento…" y chip de cámara en `#FBE3D8`.
+- [x] Separador "PUBLICADO HOY" con línea.
+- [x] Los 3 posts con badges correctos: LOGRO (#CFEBD8/#3E9B6C), ACTIVIDAD (#C7E7F1/#2E89A6), ANUNCIO (#CCD8F4/#4E72C8).
+- [x] El post de ACTIVIDAD muestra el placeholder de foto dashed (#DBCDBA sobre #F4ECE1, 200px) con caption "Foto · pintando con témperas".
+- [x] Todo lo clicable es inerte (`href="#"`): no navega a 404 y la consola de `next dev` no muestra errores ni warnings de hidratación.
+- [x] npx tsc --noEmit pasa.
+- [x] npm run lint pasa.
+- [x] Captura de Playwright (en `.playwright-mcp/`) visualmente indistinguible de `references/screenshots/feed.png` (colores, espaciados, jerarquía).
 
 ## Decisions
 
