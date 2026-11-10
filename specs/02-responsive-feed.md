@@ -1,6 +1,6 @@
 # SPEC 02 — Responsive del feed (móvil <768px)
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-11-09
 > **Objetivo:** Hacer responsive esta es una feature de SPEC 01: el feed se adapta a móvil (<768px) con bottom tab bar, top bar y FAB, sin alterar el render de desktop (≥768px).
