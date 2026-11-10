@@ -127,17 +127,17 @@ Lógica de estado activo: `pathname === href` para `/` (Feed) y `pathname.starts
 
 ## Acceptance criteria
 
-- [ ] `/kids` renderiza eyebrow "GESTIÓN", h1 Fredoka "Niños" y botón gradiente "Agregar niño" (inerte).
-- [ ] El buscador filtra en vivo por nombre (p. ej. "sof" deja solo a Sofía Méndez); vaciarlo restaura las 8 cards.
-- [ ] Separador "SALA SOLES · 8 niños" con línea y grid de 8 cards en el orden del mockup.
-- [ ] Chips correctos: Mateo "MANÍ" y Tomás "LACTOSA" (fondo `#FBD8CC`), Valentina "VINCULAR" (fondo `#F9D2DE`); el resto chevron.
-- [ ] Cada card navega a su propio slug (p. ej. `/kids/valentina-soto`).
-- [ ] `/kids/mateo-fernandez` renderiza: back link "Volver a Niños" (→ `/kids`), avatar 84px "M", "3 años · Sala Soles", panel de alergias con el texto del mockup, filas "12 mar 2022" / "Soles" / "feb 2025", botón oscuro "Resumen del día" (inerte) y 2 padres (Lucía ACTIVA, Diego PENDIENTE) + "Vincular otro padre" (inerte).
-- [ ] Un slug desconocido (p. ej. `/kids/pepe`) devuelve el 404 de Next vía `notFound()`.
-- [ ] "Niños" queda activo (fondo `#FBE3D8` / `#D9583C`) en sidebar desktop y tab bar móvil tanto en `/kids` como en `/kids/[slug]`; "Feed" activo solo en `/`.
-- [ ] A 375px: grid de 1 columna, perfil apilado, top bar + tab bar + FAB visibles y sin overflow horizontal.
-- [ ] A 922px el render de `/` sigue idéntico (sin regresión del estado activo ni de tokens).
-- [ ] `npx tsc --noEmit` y `npm run lint` pasan.
+- [x] `/kids` renderiza eyebrow "GESTIÓN", h1 Fredoka "Niños" y botón gradiente "Agregar niño" (inerte).
+- [x] El buscador filtra en vivo por nombre (p. ej. "sof" deja solo a Sofía Méndez); vaciarlo restaura las 8 cards.
+- [x] Separador "SALA SOLES · 8 niños" con línea y grid de 8 cards en el orden del mockup.
+- [x] Chips correctos: Mateo "MANÍ" y Tomás "LACTOSA" (fondo `#FBD8CC`), Valentina "VINCULAR" (fondo `#F9D2DE`); el resto chevron.
+- [x] Cada card navega a su propio slug (p. ej. `/kids/valentina-soto`).
+- [x] `/kids/mateo-fernandez` renderiza: back link "Volver a Niños" (→ `/kids`), avatar 84px "M", "3 años · Sala Soles", panel de alergias con el texto del mockup, filas "12 mar 2022" / "Soles" / "feb 2025", botón oscuro "Resumen del día" (inerte) y 2 padres (Lucía ACTIVA, Diego PENDIENTE) + "Vincular otro padre" (inerte).
+- [x] Un slug desconocido (p. ej. `/kids/pepe`) devuelve el 404 de Next vía `notFound()`.
+- [x] "Niños" queda activo (fondo `#FBE3D8` / `#D9583C`) en sidebar desktop y tab bar móvil tanto en `/kids` como en `/kids/[slug]`; "Feed" activo solo en `/`.
+- [x] A 375px: grid de 1 columna, perfil apilado, top bar + tab bar + FAB visibles y sin overflow horizontal.
+- [x] A 922px el render de `/` sigue idéntico (sin regresión del estado activo ni de tokens).
+- [x] `npx tsc --noEmit` y `npm run lint` pasan.
 
 ## Decisions
 
