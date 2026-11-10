@@ -1,23 +1,34 @@
-import type { ReactNode } from "react";
+"use client";
 
-// Tab compacto de móvil: icono sobre etiqueta (SPEC 02).
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { isNavActive, tabLinkClassName } from "@/components/feed/nav-styles";
+
+// Tab compacto de móvil (SPEC 02); activo por ruta actual (SPEC 03).
+// Los href "#" son inertes; el resto navega con Link.
 type TabLinkProps = {
   href: string;
   label: string;
   icon: ReactNode;
-  active?: boolean;
 };
 
-export function TabLink({ href, label, icon, active = false }: TabLinkProps) {
+export function TabLink({ href, label, icon }: TabLinkProps) {
+  const className = tabLinkClassName(isNavActive(usePathname(), href));
+
+  if (href === "#") {
+    return (
+      <a href="#" className={className}>
+        {icon}
+        {label}
+      </a>
+    );
+  }
+
   return (
-    <a
-      href={href}
-      className={`flex flex-1 flex-col items-center gap-[4px] py-[10px] text-[12px] ${
-        active ? "font-extrabold text-accent-deep" : "font-semibold text-ink-soft"
-      }`}
-    >
+    <Link href={href} className={className}>
       {icon}
       {label}
-    </a>
+    </Link>
   );
 }

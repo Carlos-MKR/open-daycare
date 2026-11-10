@@ -1,8 +1,21 @@
+import { Suspense } from "react";
 import { PlusIcon } from "@/components/ui/icons";
 import { TabLink } from "@/components/feed/tab-link";
+import { tabLinkClassName } from "@/components/feed/nav-styles";
 import { NAV_ITEMS } from "@/lib/feed";
 
 const HIDDEN_ON_DESKTOP = "md:hidden";
+
+// Tabs estáticos (sin estado activo): fallback del prerender mientras
+// usePathname resuelve, p. ej. en /kids/[slug] con cacheComponents.
+function InertTabs() {
+  return NAV_ITEMS.map((item) => (
+    <a key={item.id} href={item.href} className={tabLinkClassName(false)}>
+      <item.icon size={20} />
+      {item.label}
+    </a>
+  ));
+}
 
 // Tab bar inferior + FAB de nueva publicación, solo móvil (SPEC 02). Enlaces inertes.
 export function MobileTabBar() {
@@ -19,15 +32,16 @@ export function MobileTabBar() {
       <nav
         className={`${HIDDEN_ON_DESKTOP} fixed inset-x-0 bottom-0 z-10 flex border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]`}
       >
-        {NAV_ITEMS.map((item) => (
-          <TabLink
-            key={item.id}
-            href={item.href}
-            label={item.label}
-            icon={<item.icon size={20} />}
-            active={item.id === "feed"}
-          />
-        ))}
+        <Suspense fallback={<InertTabs />}>
+          {NAV_ITEMS.map((item) => (
+            <TabLink
+              key={item.id}
+              href={item.href}
+              label={item.label}
+              icon={<item.icon size={20} />}
+            />
+          ))}
+        </Suspense>
       </nav>
     </>
   );

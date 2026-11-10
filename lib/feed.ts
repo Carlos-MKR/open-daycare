@@ -19,9 +19,10 @@ export type NavItem = {
 };
 
 // Compartido por la sidebar (desktop) y la tab bar (móvil). SPEC 02.
+// La lógica de estado activo vive en components/feed/nav-styles.ts.
 export const NAV_ITEMS: NavItem[] = [
-  { id: "feed", label: "Feed", href: "#", icon: HomeIcon },
-  { id: "children", label: "Niños", href: "#", icon: ChildrenIcon },
+  { id: "feed", label: "Feed", href: "/", icon: HomeIcon },
+  { id: "children", label: "Niños", href: "/kids", icon: ChildrenIcon },
   { id: "announcements", label: "Avisos", href: "#", icon: BellIcon },
   { id: "account", label: "Mi cuenta", href: "#", icon: UserIcon },
 ];
@@ -56,16 +57,16 @@ export const POST_VARIANT_STYLES: Record<PostVariant, PostVariantStyles> = {
     chipBg: "bg-success-soft",
     chipDot: "bg-success",
     chipText: "text-success",
-    avatarBg: "bg-child-avatar",
-    avatarText: "text-child-avatar-text",
+    avatarBg: "bg-avatar-sky",
+    avatarText: "text-avatar-sky-text",
   },
   activity: {
     badgeLabel: "ACTIVIDAD",
     chipBg: "bg-activity-soft",
     chipDot: "bg-activity",
     chipText: "text-activity",
-    avatarBg: "bg-child-avatar",
-    avatarText: "text-child-avatar-text",
+    avatarBg: "bg-avatar-sky",
+    avatarText: "text-avatar-sky-text",
   },
   announcement: {
     badgeLabel: "ANUNCIO",

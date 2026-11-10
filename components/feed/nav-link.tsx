@@ -1,25 +1,34 @@
-import type { ReactNode } from "react";
+"use client";
 
-// Enlace de navegación; inerte por decisión de la SPEC 01 (href="#").
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { isNavActive, navLinkClassName } from "@/components/feed/nav-styles";
+
 type NavLinkProps = {
   href: string;
   label: string;
   icon: ReactNode;
-  active?: boolean;
 };
 
-export function NavLink({ href, label, icon, active = false }: NavLinkProps) {
+// Enlace de nav con estado activo derivado de la ruta actual (SPEC 03).
+// Los href "#" son inertes; el resto navega con Link.
+export function NavLink({ href, label, icon }: NavLinkProps) {
+  const className = navLinkClassName(isNavActive(usePathname(), href));
+
+  if (href === "#") {
+    return (
+      <a href="#" className={className}>
+        {icon}
+        {label}
+      </a>
+    );
+  }
+
   return (
-    <a
-      href={href}
-      className={`flex items-center gap-[12px] rounded-[12px] px-[12px] py-[11px] text-[14.5px] ${
-        active
-          ? "bg-chip-active font-extrabold text-accent-deep"
-          : "font-semibold text-ink-soft"
-      }`}
-    >
+    <Link href={href} className={className}>
       {icon}
       {label}
-    </a>
+    </Link>
   );
 }

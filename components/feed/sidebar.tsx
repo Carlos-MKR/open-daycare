@@ -1,8 +1,21 @@
+import { Suspense } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutIcon, PlusIcon } from "@/components/ui/icons";
 import { BrandMark } from "@/components/feed/brand-mark";
 import { NavLink } from "@/components/feed/nav-link";
+import { navLinkClassName } from "@/components/feed/nav-styles";
 import { NAV_ITEMS } from "@/lib/feed";
+
+// Nav estática (sin estado activo): fallback del prerender mientras
+// usePathname resuelve, p. ej. en /kids/[slug] con cacheComponents.
+function InertNav() {
+  return NAV_ITEMS.map((item) => (
+    <a key={item.id} href={item.href} className={navLinkClassName(false)}>
+      <item.icon size={19} />
+      {item.label}
+    </a>
+  ));
+}
 
 export function Sidebar() {
   return (
@@ -20,15 +33,16 @@ export function Sidebar() {
       </a>
 
       <nav className="flex flex-1 flex-col gap-[4px]">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.id}
-            href={item.href}
-            label={item.label}
-            icon={<item.icon size={19} />}
-            active={item.id === "feed"}
-          />
-        ))}
+        <Suspense fallback={<InertNav />}>
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.id}
+              href={item.href}
+              label={item.label}
+              icon={<item.icon size={19} />}
+            />
+          ))}
+        </Suspense>
       </nav>
 
       <div className="mt-[10px] border-t border-line pt-[14px]">
