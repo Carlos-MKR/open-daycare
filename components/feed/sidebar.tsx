@@ -1,9 +1,10 @@
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutIcon, PlusIcon } from "@/components/ui/icons";
 import { BrandMark } from "@/components/feed/brand-mark";
 import { NavLink } from "@/components/feed/nav-link";
 import { navLinkClassName } from "@/components/feed/nav-styles";
+import { usePublicationComposer } from "@/components/feed/publication-composer";
 import { NAV_ITEMS } from "@/lib/feed";
 
 // Nav estática (sin estado activo): fallback del prerender mientras
@@ -17,7 +18,14 @@ function InertNav() {
   ));
 }
 
-export function Sidebar({ onCreatePublication }: { onCreatePublication?: (event: React.MouseEvent<HTMLElement>) => void }) {
+export function Sidebar() {
+  const { open } = usePublicationComposer();
+
+  const handleCreatePublication = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    open(event.currentTarget);
+  }, [open]);
+
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-line bg-surface px-[16px] py-[24px] md:flex">
       <div className="px-[8px] pb-[22px] pt-[4px]">
@@ -26,7 +34,7 @@ export function Sidebar({ onCreatePublication }: { onCreatePublication?: (event:
 
       <button
         type="button"
-        onClick={onCreatePublication}
+        onClick={handleCreatePublication}
         className="mb-[18px] flex w-full items-center justify-center gap-[8px] rounded-[14px] bg-linear-to-b from-accent-light to-accent-strong py-[12px] text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]"
       >
         <PlusIcon size={17} />

@@ -1,7 +1,8 @@
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
 import { PlusIcon } from "@/components/ui/icons";
 import { TabLink } from "@/components/feed/tab-link";
 import { tabLinkClassName } from "@/components/feed/nav-styles";
+import { usePublicationComposer } from "@/components/feed/publication-composer";
 import { NAV_ITEMS } from "@/lib/feed";
 
 const HIDDEN_ON_DESKTOP = "md:hidden";
@@ -18,12 +19,18 @@ function InertTabs() {
 }
 
 // Tab bar inferior + FAB de nueva publicación, solo móvil (SPEC 02). Enlaces inertes.
-export function MobileTabBar({ onCreatePublication }: { onCreatePublication?: (event: React.MouseEvent<HTMLElement>) => void }) {
+export function MobileTabBar() {
+  const { open } = usePublicationComposer();
+  const handleCreatePublication = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    open(event.currentTarget);
+  }, [open]);
+
   return (
     <>
       <button
         type="button"
-        onClick={onCreatePublication}
+        onClick={handleCreatePublication}
         aria-label="Nueva publicación"
         className={`${HIDDEN_ON_DESKTOP} fixed right-[16px] bottom-[76px] z-10 flex h-[56px] w-[56px] items-center justify-center rounded-full bg-linear-to-b from-accent-light to-accent-strong text-white shadow-2xl shadow-accent/60`}
       >

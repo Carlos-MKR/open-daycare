@@ -9,7 +9,8 @@
 
 **In:**
 
-- Abrir el modal desde "Nueva publicación" en el sidebar desktop.
+- Abrir el modal desde "Nueva publicación" en el sidebar desktop, disponible en cualquier pantalla con sidebar.
+- Navegar al feed al publicar desde una pantalla distinta para mostrar la tarjeta creada.
 - Abrir el mismo modal desde `ComposerPrompt` y el FAB móvil.
 - Mostrar el encabezado con "Cancelar", "Nueva publicación" y "Publicar".
 - Seleccionar uno o varios destinatarios entre Mateo, Sofía, Benjamín y "Toda la sala".
@@ -17,6 +18,7 @@
 - Seleccionar un tipo entre Comida, Siesta, Actividad, Logro, Ánimo, Foto y Anuncio.
 - Capturar una descripción mediante textarea.
 - Mostrar el control visual de fotos y permitir marcarlo como seleccionado sin subir archivos ni mostrar previews reales.
+- Renderizar `ComposerPrompt` con ancho completo, igual que las tarjetas del feed.
 - Validar destinatario, tipo y descripción con errores inline en español.
 - Agregar la publicación creada al inicio del feed mientras la página permanezca abierta.
 - Mantener el formulario vacío al abrirse, con Mateo seleccionado inicialmente.
@@ -109,8 +111,10 @@ Al publicar correctamente, el estado local crea un `FeedPost` con un identificad
 
 ## Acceptance criteria
 
-- [x] "Nueva publicación" del sidebar abre el modal sin cambiar la URL. — Evidencia: `.playwright-mcp/create-publication-desktop.yml`.
+- [x] "Nueva publicación" del sidebar abre el modal sin cambiar la URL en cualquier pantalla con sidebar. — Evidencia: `.playwright-mcp/create-publication-from-kids.yml` desde `/kids`.
+- [x] Publicar desde una pantalla distinta del feed agrega la tarjeta y navega al feed. — Evidencia: tarjeta "Probando publicación desde Niños" visible en `/` tras abrirla desde `/kids`.
 - [x] `ComposerPrompt` y el FAB móvil abren el mismo modal. — Evidencia: snapshots desktop y `.playwright-mcp/create-publication-mobile.yml`.
+- [x] `ComposerPrompt` ocupa el mismo ancho que las tarjetas del feed. — Evidencia: composer y tarjeta miden `584px` a `922px`.
 - [x] El modal muestra Cancelar, Nueva publicación y Publicar. — Evidencia: snapshots desktop y móvil.
 - [x] Se muestran los cuatro destinos: Mateo, Sofía, Benjamín y Toda la sala. — Evidencia: snapshot desktop.
 - [x] Mateo inicia seleccionado. — Evidencia: botón `Mateo [pressed]` en snapshots.
