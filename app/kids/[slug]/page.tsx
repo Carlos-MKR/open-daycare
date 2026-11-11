@@ -5,9 +5,9 @@ import { MobileTopBar } from "@/components/feed/mobile-topbar";
 import { Sidebar } from "@/components/feed/sidebar";
 import { AllergyAlert } from "@/components/kids/allergy-alert";
 import { DetailRows } from "@/components/kids/detail-rows";
-import { ParentsPanel } from "@/components/kids/parents-panel";
+import { KidProfile } from "@/components/kids/kid-profile";
 import { ProfileHeader } from "@/components/kids/profile-header";
-import { ChevronLeftIcon, SunIcon } from "@/components/ui/icons";
+import { ChevronLeftIcon } from "@/components/ui/icons";
 import { getKidBySlug, KIDS } from "@/lib/kids";
 
 // Los perfiles vienen de datos estáticos; se prerenderizan los 8 slugs
@@ -52,16 +52,7 @@ export default async function KidProfilePage({
                 <DetailRows kid={kid} />
               </div>
 
-              <div className="flex w-full flex-none flex-col gap-[14px] md:w-[300px]">
-                <a
-                  href="#"
-                  className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-ink p-[13px] text-[15px] font-extrabold text-white"
-                >
-                  <SunIcon size={18} />
-                  Resumen del día
-                </a>
-                <ParentsPanel parents={kid.parents} />
-              </div>
+              <KidProfile kid={kid} />
             </div>
           </div>
         </main>
