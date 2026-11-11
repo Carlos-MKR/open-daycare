@@ -1,12 +1,43 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { AddChildModal, type AddChildFormState } from "@/components/kids/add-child-modal";
 import { MobileTabBar } from "@/components/feed/mobile-tabbar";
 import { MobileTopBar } from "@/components/feed/mobile-topbar";
 import { Sidebar } from "@/components/feed/sidebar";
 import { KidsBrowser } from "@/components/kids/kids-browser";
 import { PlusIcon } from "@/components/ui/icons";
-import { KIDS } from "@/lib/kids";
+import { KIDS, type Kid } from "@/lib/kids";
 
 // Listado de niños de la sala (references/pantallas/ninos.dc.html, SPEC 03).
 export default function KidsPage() {
+  const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
+  const [kids, setKids] = useState<Kid[]>(KIDS);
+  const addChildButtonRef = useRef<HTMLButtonElement>(null);
+
+  function handleSave(child: AddChildFormState) {
+    const name = child.fullName.trim();
+    const allergy = child.allergies
+      .split(",")[0]
+      .trim()
+      .toUpperCase();
+
+    const newKid: Kid = {
+      slug: `${slugify(name)}-${Date.now()}`,
+      name,
+      ageLabel: "—",
+      birthDate: child.birthDate.trim(),
+      room: child.room,
+      enrolledSince: "hoy",
+      ...(allergy ? { allergyChip: allergy, allergyNote: child.allergies.trim() } : {}),
+      avatarInitial: name.charAt(0).toUpperCase(),
+      avatarTone: "sky",
+      parents: [],
+    };
+
+    setKids((currentKids) => [...currentKids, newKid]);
+  }
+
   return (
     <div className="flex min-h-screen bg-cream">
       <Sidebar />
@@ -24,18 +55,35 @@ export default function KidsPage() {
                   Niños
                 </h1>
               </div>
-              <a
-                href="#"
+              <button
+                ref={addChildButtonRef}
+                type="button"
+                onClick={() => setIsAddChildModalOpen(true)}
                 className="flex items-center gap-[8px] rounded-[14px] bg-linear-to-b from-accent-light to-accent-strong px-[18px] py-[11px] text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.7)]"
               >
                 <PlusIcon size={17} />
                 Agregar niño
-              </a>
+              </button>
             </div>
-            <KidsBrowser kids={KIDS} />
+            <KidsBrowser kids={kids} />
           </div>
         </main>
       </div>
+      <AddChildModal
+        isOpen={isAddChildModalOpen}
+        onClose={() => setIsAddChildModalOpen(false)}
+        onSave={handleSave}
+        returnFocusRef={addChildButtonRef}
+      />
     </div>
   );
+}
+
+function slugify(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
