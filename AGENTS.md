@@ -43,7 +43,18 @@ Next.js 16.4.5 + React 19 + Tailwind v4 app for a daycare platform. Currently a 
 
 - Playwright MCP: screenshots and any Playwright output must go in `.playwright-mcp/`.
 - context7 MCP: use it to fetch up-to-date framework docs (Next.js, React, Tailwind) before writing framework-specific code.
+- Supabase MCP (remote, configurado en `~/.config/opencode/opencode.json` con `Authorization: Bearer <PAT>` — el flujo OAuth tiene un bug conocido de DCR entre OpenCode y Supabase, no intentar `opencode mcp auth supabase`):
+  - Project ref: `rsquxsqzjffagtidrgkp` — URL: `https://rsquxsqzjffagtidrgkp.supabase.co`.
+  - Features habilitadas: docs, account, database, debugging, development, functions, branching, feedback, notebooks.
+  - Herramientas disponibles vía `execute` bajo `tools.supabase` (27 tools: schema, migrations, SQL, logs, branches, edge functions, etc.).
+  - Antes de cambiar schema, inspeccionar las tablas existentes; el SQL corre contra el proyecto remoto, aplicar cambios con cuidado.
 - Lint ignora `references/**` (mockups estáticos).
+
+## Supabase skills
+
+- Skill global `supabase` (instalada via `npx skills add supabase/agent-skills`): usarla para CUALQUIER tarea de Supabase (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues, RLS, migraciones, debugging de errores HTTP/Postgres).
+- `07-DB-Schema` (referencia externa, `C:\Users\cmsc0\Desktop\OpenCode\07-DB-Schema`) — esquema de base de datos de referencia (tablas, columnas, relaciones). **Aún no está implementado en la DB**; es el diseño a seguir al crear migraciones.
+- Preferir desarrollo local con Supabase CLI (`supabase start`, migraciones locales, `supabase db push`) antes de aplicar cambios al proyecto remoto.
 
 ## Reglas de código
 - Usar código limpio, nombres, funciones, variables etc en inglés.
