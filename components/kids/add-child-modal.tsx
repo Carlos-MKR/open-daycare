@@ -227,16 +227,30 @@ export function AddChildModal({
               <span className="mb-[8px] block text-[12px] font-extrabold tracking-[.7px] text-muted-strong">
                 {FIELD_LABELS.room.toUpperCase()}
               </span>
-              <select
-                name="room"
-                value={form.room}
-                onChange={(event) => updateField("room", event.target.value)}
-                aria-invalid={Boolean(errors.room)}
-                aria-describedby={errors.room ? errorId("room") : undefined}
-                className="w-full rounded-[14px] border-[1.5px] border-[#eadfd0] bg-white px-[16px] py-[13px] text-[15px] font-bold text-ink outline-none"
-              >
-                <option value="Soles">Soles</option>
-              </select>
+              <span className="relative block">
+                <select
+                  name="room"
+                  value={form.room}
+                  onChange={(event) => updateField("room", event.target.value)}
+                  aria-invalid={Boolean(errors.room)}
+                  aria-describedby={errors.room ? errorId("room") : undefined}
+                  className="w-full appearance-none rounded-[14px] border-[1.5px] border-[#eadfd0] bg-white px-[16px] py-[13px] pr-[42px] text-[15px] font-bold text-ink outline-none"
+                >
+                  <option value="Soles">Soles</option>
+                </select>
+                <svg
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-[16px] top-1/2 size-[16px] -translate-y-1/2 text-[#b0a290]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </span>
               <FieldError id={errorId("room")} message={errors.room} />
             </label>
           </div>
