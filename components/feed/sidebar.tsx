@@ -17,20 +17,21 @@ function InertNav() {
   ));
 }
 
-export function Sidebar() {
+export function Sidebar({ onCreatePublication }: { onCreatePublication?: (event: React.MouseEvent<HTMLElement>) => void }) {
   return (
     <aside className="sticky top-0 hidden h-screen w-[248px] flex-none flex-col border-r border-line bg-surface px-[16px] py-[24px] md:flex">
       <div className="px-[8px] pb-[22px] pt-[4px]">
         <BrandMark />
       </div>
 
-      <a
-        href="#"
+      <button
+        type="button"
+        onClick={onCreatePublication}
         className="mb-[18px] flex w-full items-center justify-center gap-[8px] rounded-[14px] bg-linear-to-b from-accent-light to-accent-strong py-[12px] text-[14.5px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(238,129,100,.75)]"
       >
         <PlusIcon size={17} />
         Nueva publicación
-      </a>
+      </button>
 
       <nav className="flex flex-1 flex-col gap-[4px]">
         <Suspense fallback={<InertNav />}>
