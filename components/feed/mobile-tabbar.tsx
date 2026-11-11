@@ -18,16 +18,17 @@ function InertTabs() {
 }
 
 // Tab bar inferior + FAB de nueva publicación, solo móvil (SPEC 02). Enlaces inertes.
-export function MobileTabBar() {
+export function MobileTabBar({ onCreatePublication }: { onCreatePublication?: (event: React.MouseEvent<HTMLElement>) => void }) {
   return (
     <>
-      <a
-        href="#"
+      <button
+        type="button"
+        onClick={onCreatePublication}
         aria-label="Nueva publicación"
         className={`${HIDDEN_ON_DESKTOP} fixed right-[16px] bottom-[76px] z-10 flex h-[56px] w-[56px] items-center justify-center rounded-full bg-linear-to-b from-accent-light to-accent-strong text-white shadow-2xl shadow-accent/60`}
       >
         <PlusIcon size={24} />
-      </a>
+      </button>
 
       <nav
         className={`${HIDDEN_ON_DESKTOP} fixed inset-x-0 bottom-0 z-10 flex border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]`}
