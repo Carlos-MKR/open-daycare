@@ -174,7 +174,7 @@ export function AddChildModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="w-full max-w-[520px] overflow-hidden rounded-[24px] border border-line bg-[#fbf4ec] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)]"
+        className="max-h-[calc(100dvh-48px)] w-full max-w-[520px] overflow-y-auto rounded-[24px] border border-line bg-[#fbf4ec] shadow-[0_20px_50px_-24px_rgba(63,54,46,.35)] md:max-h-[calc(100dvh-80px)]"
       >
         <div className="flex items-center justify-between border-b border-line px-[20px] py-[20px] md:px-[26px]">
           <button
