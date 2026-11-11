@@ -7,15 +7,35 @@ import { MobileTopBar } from "@/components/feed/mobile-topbar";
 import { Sidebar } from "@/components/feed/sidebar";
 import { KidsBrowser } from "@/components/kids/kids-browser";
 import { PlusIcon } from "@/components/ui/icons";
-import { KIDS } from "@/lib/kids";
+import { KIDS, type Kid } from "@/lib/kids";
 
 // Listado de niños de la sala (references/pantallas/ninos.dc.html, SPEC 03).
 export default function KidsPage() {
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
+  const [kids, setKids] = useState<Kid[]>(KIDS);
   const addChildButtonRef = useRef<HTMLButtonElement>(null);
 
   function handleSave(child: AddChildFormState) {
-    void child;
+    const name = child.fullName.trim();
+    const allergy = child.allergies
+      .split(",")[0]
+      .trim()
+      .toUpperCase();
+
+    const newKid: Kid = {
+      slug: `${slugify(name)}-${Date.now()}`,
+      name,
+      ageLabel: "—",
+      birthDate: child.birthDate.trim(),
+      room: child.room,
+      enrolledSince: "hoy",
+      ...(allergy ? { allergyChip: allergy, allergyNote: child.allergies.trim() } : {}),
+      avatarInitial: name.charAt(0).toUpperCase(),
+      avatarTone: "sky",
+      parents: [],
+    };
+
+    setKids((currentKids) => [...currentKids, newKid]);
   }
 
   return (
@@ -45,7 +65,7 @@ export default function KidsPage() {
                 Agregar niño
               </button>
             </div>
-            <KidsBrowser kids={KIDS} />
+            <KidsBrowser kids={kids} />
           </div>
         </main>
       </div>
@@ -57,4 +77,13 @@ export default function KidsPage() {
       />
     </div>
   );
+}
+
+function slugify(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
