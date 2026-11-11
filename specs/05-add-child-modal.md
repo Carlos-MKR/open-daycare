@@ -1,6 +1,6 @@
 # SPEC 05 — Modal agregar niño
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 02, SPEC 03
 > **Fecha:** 2026-11-11
 > **Objetivo:** Implementar el flujo mock para agregar un niño desde `/kids`, usando como referencia `references/pantallas/agregar-nino.dc.html`.
@@ -78,20 +78,20 @@ Valores iniciales:
 
 ## Acceptance criteria
 
-- [ ] El botón "Agregar niño" en `/kids` abre el modal sin navegar.
-- [ ] El modal muestra el título "Agregar niño", "Cancelar" y "Guardar".
-- [ ] Se muestran los cinco campos con los labels y placeholders de la referencia.
-- [ ] Nombre completo, fecha de nacimiento y sala son obligatorios.
-- [ ] Alergias y notas médicas pueden permanecer vacíos.
-- [ ] Un envío inválido muestra errores inline en español y conserva el modal abierto.
-- [ ] Un envío válido cierra el modal y agrega el niño al listado mock local.
-- [ ] "Cancelar" limpia el formulario y no agrega ningún niño.
-- [ ] `Escape` cierra el modal.
-- [ ] El foco inicial, el foco de retorno y el foco dentro del modal son accesibles.
-- [ ] A 922px el modal coincide con la composición visual de la referencia.
-- [ ] A 375px el modal cabe sin overflow horizontal y fecha/sala se apilan.
-- [ ] `npx tsc --noEmit` pasa.
-- [ ] `npm run lint` pasa.
+- [x] El botón "Agregar niño" en `/kids` abre el modal sin navegar.
+- [x] El modal muestra el título "Agregar niño", "Cancelar" y "Guardar".
+- [x] Se muestran los cinco campos con los labels y placeholders de la referencia.
+- [x] Nombre completo, fecha de nacimiento y sala son obligatorios.
+- [x] Alergias y notas médicas pueden permanecer vacíos.
+- [x] Un envío inválido muestra errores inline en español y conserva el modal abierto.
+- [x] Un envío válido cierra el modal y agrega el niño al listado mock local.
+- [x] "Cancelar" limpia el formulario y no agrega ningún niño.
+- [x] `Escape` cierra el modal.
+- [x] El foco inicial, el foco de retorno y el foco dentro del modal son accesibles.
+- [x] A 922px el modal coincide con la composición visual de la referencia.
+- [x] A 375px el modal cabe sin overflow horizontal y fecha/sala se apilan.
+- [x] `npx tsc --noEmit` pasa.
+- [x] `npm run lint` pasa.
 
 ## Decisions
 
