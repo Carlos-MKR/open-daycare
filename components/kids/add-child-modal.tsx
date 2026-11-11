@@ -52,6 +52,8 @@ function validateForm(form: AddChildFormState): AddChildFormErrors {
 
   if (!form.birthDate.trim()) {
     errors.birthDate = "Ingresa la fecha de nacimiento.";
+  } else if (!isValidDate(form.birthDate)) {
+    errors.birthDate = "Usa una fecha válida en formato dd/mm/aaaa.";
   }
 
   if (!form.room) {
@@ -59,6 +61,23 @@ function validateForm(form: AddChildFormState): AddChildFormErrors {
   }
 
   return errors;
+}
+
+function isValidDate(value: string) {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+
+  if (!match) {
+    return false;
+  }
+
+  const [, day, month, year] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+
+  return (
+    date.getFullYear() === Number(year) &&
+    date.getMonth() === Number(month) - 1 &&
+    date.getDate() === Number(day)
+  );
 }
 
 export function AddChildModal({
@@ -219,6 +238,7 @@ export function AddChildModal({
               label={FIELD_LABELS.birthDate}
               value={form.birthDate}
               placeholder="dd/mm/aaaa"
+              inputMode="numeric"
               error={errors.birthDate}
               errorId={errorId("birthDate")}
               onChange={(value) => updateField("birthDate", value)}
@@ -288,13 +308,14 @@ type FormFieldProps = {
   label: string;
   value: string;
   placeholder: string;
+  inputMode?: "numeric" | "text";
   error?: string;
   errorId: string;
   onChange: (value: string) => void;
 };
 
 const FormField = forwardRef<HTMLInputElement, FormFieldProps>(function FormField(
-  { name, label, value, placeholder, error, errorId, onChange },
+  { name, label, value, placeholder, inputMode, error, errorId, onChange },
   ref,
 ) {
   return (
@@ -308,6 +329,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(function FormFiel
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
+        inputMode={inputMode}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
         className="w-full rounded-[14px] border-[1.5px] border-[#eadfd0] bg-white px-[16px] py-[13px] text-[15px] text-ink outline-none placeholder:text-placeholder"
