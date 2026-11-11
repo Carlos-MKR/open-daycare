@@ -1,9 +1,12 @@
 import { Avatar } from "@/components/ui/avatar";
 import { PlusIcon } from "@/components/ui/icons";
 import { AVATAR_TONES, type LinkedParent, type ParentStatus } from "@/lib/kids";
+import type { RefObject } from "react";
 
 type ParentsPanelProps = {
   parents: LinkedParent[];
+  onLinkParent: () => void;
+  triggerRef: RefObject<HTMLButtonElement | null>;
 };
 
 // Chip de estado del vínculo: ACTIVA / PENDIENTE.
@@ -18,7 +21,7 @@ const STATUS_STYLES: Record<ParentStatus, { label: string; className: string }> 
   },
 };
 
-export function ParentsPanel({ parents }: ParentsPanelProps) {
+export function ParentsPanel({ parents, onLinkParent, triggerRef }: ParentsPanelProps) {
   return (
     <div className="rounded-[16px] border border-line bg-surface px-[18px] py-[16px]">
       <div className="mb-[14px] text-[12.5px] font-extrabold tracking-[.8px] text-caption">
@@ -48,14 +51,19 @@ export function ParentsPanel({ parents }: ParentsPanelProps) {
             </div>
           );
         })}
-        <a href="#" className="flex items-center gap-[12px] pt-[8px]">
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={onLinkParent}
+          className="flex items-center gap-[12px] pt-[8px] text-left"
+        >
           <span className="flex h-[40px] w-[40px] flex-none items-center justify-center rounded-full border-[1.5px] border-dashed border-dashed-soft text-photo-fg">
             <PlusIcon size={18} strokeWidth={2.2} />
           </span>
           <span className="text-[14.5px] font-extrabold text-edit-link">
             Vincular otro padre
           </span>
-        </a>
+        </button>
       </div>
     </div>
   );
