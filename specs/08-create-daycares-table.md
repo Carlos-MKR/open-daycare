@@ -1,6 +1,6 @@
 # SPEC 08 — Tabla daycares
 
-> **Estado:** Aprobado
+> **Estado:** Implementado.
 > **Depende de:** — (primera spec de base de datos)
 > **Fecha:** 2026-11-11
 > **Objetivo:** Crear la tabla raíz `daycares` en Supabase mediante una migración SQL versionada en el repo, aplicada al proyecto remoto `rsquxsqzjffagtidrgkp` vía MCP.
@@ -62,12 +62,12 @@ insert into public.daycares (name, address) values
 
 ## Acceptance criteria
 
-- [ ] `supabase/migrations/20261111000000_create_daycares.sql` existe en el repo con el contenido del plan paso 1.
-- [ ] La tabla `public.daycares` existe en `rsquxsqzjffagtidrgkp` con exactamente `id` (uuid PK, default `gen_random_uuid()`), `name` (text NOT NULL), `address` (text NOT NULL), `created_at` (timestamptz NOT NULL default now()).
-- [ ] RLS está habilitado en `daycares` y no existe ninguna policy.
-- [ ] Existen exactamente cuatro filas seed, incluyendo una con `name = 'Guardería Sala Soles'`, cada una con `address` no nulo.
-- [ ] La migración figura en el historial de migraciones del proyecto remoto con versión `20261111000000_create_daycares`.
-- [ ] No hay policies en `pg_policies` para `daycares` (deny-by-default efectivo sobre la anon key).
+- [x] `supabase/migrations/20261111000000_create_daycares.sql` existe en el repo con el contenido del plan paso 1. — Evidencia: archivo creado en `supabase/migrations/`.
+- [x] La tabla `public.daycares` existe en `rsquxsqzjffagtidrgkp` con exactamente `id` (uuid PK, default `gen_random_uuid()`), `name` (text NOT NULL), `address` (text NOT NULL), `created_at` (timestamptz NOT NULL default now()). — Evidencia: `execute_sql` contra `information_schema.columns` devolvió las 4 columnas con tipos y defaults exactos.
+- [x] RLS está habilitado en `daycares` y no existe ninguna policy. — Evidencia: `pg_class.relrowsecurity = true`, conteo de policies en `pg_policies` = 0.
+- [x] Existen exactamente cuatro filas seed, incluyendo una con `name = 'Guardería Sala Soles'`, cada una con `address` no nulo. — Evidencia: query sobre `public.daycares` retornó Sala Soles, Pequeños Pasos, Los Pollitos y Arcoíris, todas con `address` presente.
+- [x] La migración figura en el historial de migraciones del proyecto remoto con versión `20261111000000_create_daycares`. — Evidencia: `list_migrations` mostró el nombre registrado.
+- [x] No hay policies en `pg_policies` para `daycares` (deny-by-default efectivo sobre la anon key). — Evidencia: misma consulta del criterio anterior (`policy_count = 0`).
 
 ## Decisions
 
