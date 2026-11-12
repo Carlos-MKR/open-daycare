@@ -35,6 +35,7 @@ Next.js 16.4.5 + React 19 + Tailwind v4 app for a daycare platform. Currently a 
 
 - Custom skills live in `.agents/skills/` (`/spec`, `/spec-impl`). Use `/spec` before starting a large feature; it saves specs to `specs/` (numbered, created on demand).
 - Specs and replies should be written in the language the user starts with (existing guidance assumes Spanish).
+- **Ubicación de specs de base de datos:** todo spec que trate sobre la base de datos (tablas, ENUMs, migraciones, RLS, triggers, seeds) se guarda en `specs/database/` en lugar de la raíz de `specs/`. La numeración es global (la siguiente sería `10-...` sin importar la carpeta). Los specs de frontend/UI siguen en la raíz de `specs/`.
 - `/spec` — Usar esta skill para crear las especificaciones.
 - `/spec-impl` — Usaremos esta skill para hacer las implementaciones.
 - `/verify-spec` — Usar este comando para verificar que los criterios de aceptación de un spec están completos y son correctos. Valida contra la implementación actual usando Playwright (comparación visual) y Context7 (recomendaciones de Next.js).

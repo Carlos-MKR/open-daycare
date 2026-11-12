@@ -10,7 +10,7 @@
     }
   },
   "references": {
-    "docs": {
+    "db-schema": {
       "type": "local",
       "path": "../07-DB-Schema",
       "description": "Este es un esquema de base de datos, tablas, columnas y referencias a crear. Esto no esta implementado en la base de datos. Solo es para referencia."
