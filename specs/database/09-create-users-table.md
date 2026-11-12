@@ -1,6 +1,6 @@
 # SPEC 09 — Tabla users + ENUMs + usuario staff de prueba
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 08 (`daycares` debe existir en la DB remota para la FK y el seed)
 > **Fecha:** 2026-11-12
 > **Objetivo:** Crear la tabla `public.users` con sus ENUMs (`user_role`, `user_status`) en Supabase mediante una migración SQL versionada, incluyendo trigger de creación de perfil desde `auth.users`, policy RLS de lectura propia y un seed de usuario staff (`caro@opendaycare.com`) vinculado a "Guardería Sala Soles" para probar.
@@ -103,16 +103,16 @@ Resultado esperado en `public.users`: una fila `full_name = 'Caro'`, `role = 'st
 
 ## Acceptance criteria
 
-- [ ] `supabase/migrations/20261112000000_create_users.sql` existe en el repo con ENUMs + tabla + triggers + RLS + seed.
-- [ ] Existen los ENUMs `public.user_role` ('staff','parent','admin') y `public.user_status` ('pending','active') con valores y orden exactos.
-- [ ] `public.users` existe con las 9 columnas de la tabla anterior (tipos, defaults y nullability exactos), con FK `id → auth.users(id)` ON DELETE CASCADE y FK `daycare_id → daycares(id)` ON DELETE SET NULL.
-- [ ] RLS está habilitado en `users` con exactamente una policy que habilita `SELECT` cuando `auth.uid() = id`; no existen policies de INSERT/UPDATE/DELETE.
-- [ ] Existe un trigger `AFTER INSERT` en `auth.users` que crea la fila en `public.users` desde `raw_user_meta_data`; metadata con `role` o `daycare_id` inválidos no aborta el signup (fallback `parent`/`null`).
-- [ ] Existe exactamente una fila en `public.users` con `role = 'staff'`, `full_name = 'Caro'`, `status = 'active'` y `daycare_id` apuntando a "Guardería Sala Soles".
-- [ ] La fila de `auth.users` para `caro@opendaycare.com` existe con `email_confirmed_at` no nulo y `encrypted_password = crypt('daycare123', encrypted_password)` (hash bcrypt válido para GoTrue).
-- [ ] `updated_at` de `public.users` se actualiza automáticamente en un UPDATE (trigger `set_updated_at` activo).
-- [ ] La migración figura en el historial del proyecto remoto con versión `20261112000000_create_users`.
-- [ ] No hay cambios en `app/` ni `lib/` (spec solo de base de datos).
+- [x] `supabase/migrations/20261112000000_create_users.sql` existe en el repo con ENUMs + tabla + triggers + RLS + seed.
+- [x] Existen los ENUMs `public.user_role` ('staff','parent','admin') y `public.user_status` ('pending','active') con valores y orden exactos.
+- [x] `public.users` existe con las 9 columnas de la tabla anterior (tipos, defaults y nullability exactos), con FK `id → auth.users(id)` ON DELETE CASCADE y FK `daycare_id → daycares(id)` ON DELETE SET NULL.
+- [x] RLS está habilitado en `users` con exactamente una policy que habilita `SELECT` cuando `auth.uid() = id`; no existen policies de INSERT/UPDATE/DELETE.
+- [x] Existe un trigger `AFTER INSERT` en `auth.users` que crea la fila en `public.users` desde `raw_user_meta_data`; metadata con `role` o `daycare_id` inválidos no aborta el signup (fallback `parent`/`null`).
+- [x] Existe exactamente una fila en `public.users` con `role = 'staff'`, `full_name = 'Caro'`, `status = 'active'` y `daycare_id` apuntando a "Guardería Sala Soles".
+- [x] La fila de `auth.users` para `caro@opendaycare.com` existe con `email_confirmed_at` no nulo y `encrypted_password = crypt('daycare123', encrypted_password)` (hash bcrypt válido para GoTrue).
+- [x] `updated_at` de `public.users` se actualiza automáticamente en un UPDATE (trigger `set_updated_at` activo).
+- [x] La migración figura en el historial del proyecto remoto con versión `20261112000000_create_users`.
+- [x] No hay cambios en `app/` ni `lib/` (spec solo de base de datos).
 
 ## Decisions
 
