@@ -53,8 +53,12 @@ Next.js 16.4.5 + React 19 + Tailwind v4 app for a daycare platform. Currently a 
 ## Supabase skills
 
 - Skill global `supabase` (instalada via `npx skills add supabase/agent-skills`): usarla para CUALQUIER tarea de Supabase (Database, Auth, Edge Functions, Realtime, Storage, Vectors, Cron, Queues, RLS, migraciones, debugging de errores HTTP/Postgres).
-- `07-DB-Schema` (referencia externa, `C:\Users\cmsc0\Desktop\OpenCode\07-DB-Schema`) — esquema de base de datos de referencia (tablas, columnas, relaciones). **Aún no está implementado en la DB**; es el diseño a seguir al crear migraciones.
-- Preferir desarrollo local con Supabase CLI (`supabase start`, migraciones locales, `supabase db push`) antes de aplicar cambios al proyecto remoto.
+- `07-DB-Schema` (referencia externa, `C:\Users\cmsc0\Desktop\OpenCode\07-DB-Schema`) — esquema de base de datos de referencia (tablas, columnas, relaciones). Es el diseño a seguir al crear migraciones, pero puede desactualizarse vs. la DB real (ej. `daycares.address`, agregada en SPEC 08). La fuente de verdad del schema aplicado es `supabase/migrations/`.
+- **Regla obligatoria de migraciones** (patrón establecido en SPEC 08): NUNCA manipular la base de datos directamente (ni `execute_sql` con DDL, ni Dashboard, ni cambios sueltos). Todo cambio de schema — crear/alterar/drop de tablas, columnas, enums, índices, RLS, policies, triggers, o seeds persistentes — SIEMPRE va por migración:
+  1. Escribir el archivo SQL en `supabase/migrations/` con nombre `YYYYMMDDHHMMSS_descripcion_snake_case.sql` (versionado en el repo).
+  2. Aplicarlo al proyecto remoto `rsquxsqzjffagtidrgkp` con `apply_migration` del MCP, usando como `name` exactamente el nombre del archivo sin extensión (ej. `20261111000000_create_daycares`) para que un futuro `supabase db push` lo reconozca como ya aplicado.
+  3. Verificar con `list_migrations`/`execute_sql` que quedó registrado y aplicado.
+- El CLI de Supabase y Docker NO están instalados, así que el flujo local (`supabase start` / `supabase db push`) no aplica por ahora; si se instalan, el repo de migraciones ya es compatible porque los archivos viven en `supabase/migrations/`.
 
 ## Reglas de código
 - Usar código limpio, nombres, funciones, variables etc en inglés.
