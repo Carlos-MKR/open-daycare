@@ -26,3 +26,60 @@ create policy "Users can read own profile"
   on public.users
   for select
   using (auth.uid() = id);
+
+-- updated_at automático en todo UPDATE de users.
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end $$;
+
+create trigger set_updated_at
+  before update on public.users
+  for each row
+  execute function public.set_updated_at();
+
+-- Crea la fila de perfil en public.users al registrarse en auth.users.
+-- Lee full_name / role / daycare_id de raw_user_meta_data. SECURITY DEFINER
+-- con search_path fijo para insertar en public.users pese al RLS.
+-- Metadata sucia (role o daycare_id inválidos) no aborta el signup: cae a
+-- role = 'parent' y daycare_id = null.
+create extension if not exists pgcrypto;
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.users (id, full_name, role, daycare_id)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1)),
+    (new.raw_user_meta_data ->> 'role')::user_role,
+    (new.raw_user_meta_data ->> 'daycare_id')::uuid
+  )
+  on conflict (id) do nothing;
+  return new;
+exception
+  when others then
+    -- reintentar con fallbacks seguros para que el signup nunca falle
+    insert into public.users (id, full_name, role, daycare_id)
+    values (
+      new.id,
+      coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1)),
+      'parent',
+      null
+    )
+    on conflict (id) do nothing;
+    return new;
+end $$;
+
+create trigger handle_new_user
+  after insert on auth.users
+  for each row
+  execute function public.handle_new_user();
