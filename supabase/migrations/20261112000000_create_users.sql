@@ -83,3 +83,25 @@ create trigger handle_new_user
   after insert on auth.users
   for each row
   execute function public.handle_new_user();
+
+-- Seed: usuario staff de DEMO para probar el futuro login real (SPEC 04).
+-- Credenciales: caro@opendaycare.com / daycare123 (coinciden con el mock actual).
+-- Se inserta en auth.users y se deja que handle_new_user cree el perfil:
+-- ejercita la misma ruta que usará el signup real. No usar en producción
+-- (ahi irá por Admin API / signup con validación de rol en el server).
+insert into auth.users (
+  instance_id, id, aud, role, email,
+  encrypted_password, email_confirmed_at,
+  raw_user_meta_data, created_at, updated_at,
+  confirmation_sent_at, is_sso_user
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  gen_random_uuid(), 'authenticated', 'authenticated', 'caro@opendaycare.com',
+  crypt('daycare123', gen_salt('bf')), now(),
+  jsonb_build_object(
+    'full_name', 'Caro',
+    'role', 'staff',
+    'daycare_id', (select id from public.daycares where name = 'Guardería Sala Soles')
+  ),
+  now(), now(), now(), false
+);
