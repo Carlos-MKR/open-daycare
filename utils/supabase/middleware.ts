@@ -4,8 +4,24 @@ import { NextResponse, type NextRequest } from 'next/server';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-// Refresca el token de sesión en cada request que pasa por proxy.ts.
-// Devuelve la respuesta con las cookies renovadas.
+// Rutas accesibles sin sesión. Todo lo demás exige usuario autenticado.
+const PUBLIC_PATHS = ['/login', '/activar-cuenta'];
+
+function isPublicPath(pathname: string) {
+  return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
+// Copia las cookies de refresh de una respuesta a otra para no perder
+// el token renovado cuando el proxy redirige en vez de continuar.
+function copyAuthCookies(from: NextResponse, to: NextResponse) {
+  for (const cookie of from.cookies.getAll()) {
+    to.cookies.set(cookie);
+  }
+}
+
+// Refresca el token de sesión en cada request que pasa por proxy.ts y
+// aplica la protección de rutas: sin sesión las rutas privadas redirecten
+// a /login; con sesión /login redirecte al feed.
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -28,10 +44,27 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANTE: no ejecutar código entre createServerClient y
   // getUser() sin llamar antes a getSession() para evitar robos de sesión.
-  // getUser() además refresca el token si toca.
-  await supabase.auth.getUser();
+  // getUser() además refresca el token si toca, y debe correr antes de
+  // generar la respuesta para que setAll pueda escribir las cookies.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Cuando exista login real, aquí se puede redirigir a /login si
-  // !user y la ruta está protegida.
+  const pathname = request.nextUrl.pathname;
+
+  if (!user && !isPublicPath(pathname)) {
+    const redirectResponse = NextResponse.redirect(
+      new URL('/login', request.url),
+    );
+    copyAuthCookies(supabaseResponse, redirectResponse);
+    return redirectResponse;
+  }
+
+  if (user && pathname === '/login') {
+    const redirectResponse = NextResponse.redirect(new URL('/', request.url));
+    copyAuthCookies(supabaseResponse, redirectResponse);
+    return redirectResponse;
+  }
+
   return supabaseResponse;
 }

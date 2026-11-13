@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense, useCallback } from "react";
 import { PlusIcon } from "@/components/ui/icons";
 import { TabLink } from "@/components/feed/tab-link";

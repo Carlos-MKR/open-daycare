@@ -10,13 +10,17 @@ import { Sidebar } from "@/components/feed/sidebar";
 import { usePublicationComposer } from "@/components/feed/publication-composer";
 import { FEED_POSTS } from "@/lib/feed";
 
-export function FeedBrowser() {
+type FeedBrowserProps = {
+  displayName: string;
+};
+
+export function FeedBrowser({ displayName }: FeedBrowserProps) {
   const { newPosts } = usePublicationComposer();
   const posts = [...newPosts, ...FEED_POSTS];
 
   return (
     <div className="flex min-h-screen bg-cream">
-      <Sidebar />
+      <Sidebar displayName={displayName} />
       <div className="min-w-0 flex-1">
         <MobileTopBar />
         <MobileTabBar />
