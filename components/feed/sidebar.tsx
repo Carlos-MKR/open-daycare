@@ -21,7 +21,11 @@ function InertNav() {
   ));
 }
 
-export function Sidebar() {
+type SidebarProps = {
+  displayName: string;
+};
+
+export function Sidebar({ displayName }: SidebarProps) {
   const { open } = usePublicationComposer();
 
   const handleCreatePublication = useCallback((event: React.MouseEvent<HTMLElement>) => {
@@ -60,11 +64,11 @@ export function Sidebar() {
       <div className="mt-[10px] border-t border-line pt-[14px]">
         <div className="flex items-center gap-[11px] px-[8px] py-[6px]">
           <Avatar size="sm" bgColor="bg-accent">
-            C
+            {displayName.charAt(0).toUpperCase()}
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="text-[14px] font-extrabold text-ink">
-              Caro Giménez
+              {displayName}
             </div>
             <div className="text-[12px] text-muted">Maestra · Sala Soles</div>
           </div>

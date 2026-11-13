@@ -9,9 +9,13 @@ import { KidsBrowser } from "@/components/kids/kids-browser";
 import { PlusIcon } from "@/components/ui/icons";
 import { KIDS, type Kid } from "@/lib/kids";
 
+type KidsViewProps = {
+  displayName: string;
+};
+
 // Estado client del listado de niños (references/pantallas/ninos.dc.html,
 // SPEC 03). Lo renderiza app/kids/page.tsx tras el guard requireUser().
-export function KidsView() {
+export function KidsView({ displayName }: KidsViewProps) {
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [kids, setKids] = useState<Kid[]>(KIDS);
   const addChildButtonRef = useRef<HTMLButtonElement>(null);
@@ -41,7 +45,7 @@ export function KidsView() {
 
   return (
     <div className="flex min-h-screen bg-cream">
-      <Sidebar />
+      <Sidebar displayName={displayName} />
       <div className="min-w-0 flex-1">
         <MobileTopBar />
         <MobileTabBar />

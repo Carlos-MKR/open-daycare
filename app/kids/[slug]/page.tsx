@@ -8,7 +8,7 @@ import { DetailRows } from "@/components/kids/detail-rows";
 import { KidProfile } from "@/components/kids/kid-profile";
 import { ProfileHeader } from "@/components/kids/profile-header";
 import { ChevronLeftIcon } from "@/components/ui/icons";
-import { requireUser } from "@/lib/auth/require-user";
+import { getDisplayName, requireUser } from "@/lib/auth/require-user";
 import { getKidBySlug, KIDS } from "@/lib/kids";
 
 // Los perfiles vienen de datos estáticos; se prerenderizan los 8 slugs
@@ -26,7 +26,7 @@ export const instant = false;
 export default async function KidProfilePage({
   params,
 }: PageProps<"/kids/[slug]">) {
-  await requireUser();
+  const user = await requireUser();
 
   const { slug } = await params;
   const kid = getKidBySlug(slug);
@@ -34,7 +34,7 @@ export default async function KidProfilePage({
 
   return (
     <div className="flex min-h-screen bg-cream">
-      <Sidebar />
+      <Sidebar displayName={getDisplayName(user)} />
       <div className="min-w-0 flex-1">
         <MobileTopBar />
         <MobileTabBar />
