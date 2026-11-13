@@ -1,3 +1,4 @@
+import { logout } from "@/actions/auth/logout";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutIcon } from "@/components/ui/icons";
 import { BrandMark } from "@/components/feed/brand-mark";
@@ -11,13 +12,15 @@ export function MobileTopBar() {
         <Avatar size="sm" bgColor="bg-accent">
           C
         </Avatar>
-        <a
-          href="#"
-          title="Cerrar sesión"
-          className="flex h-[32px] w-[32px] items-center justify-center rounded-[10px] bg-cream text-muted-strong"
-        >
-          <LogoutIcon size={16} />
-        </a>
+        <form action={logout}>
+          <button
+            type="submit"
+            title="Cerrar sesión"
+            className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-[10px] bg-cream text-muted-strong"
+          >
+            <LogoutIcon size={16} />
+          </button>
+        </form>
       </div>
     </header>
   );

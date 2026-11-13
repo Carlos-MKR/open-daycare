@@ -1,4 +1,5 @@
 import { Suspense, useCallback } from "react";
+import { logout } from "@/actions/auth/logout";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutIcon, PlusIcon } from "@/components/ui/icons";
 import { BrandMark } from "@/components/feed/brand-mark";
@@ -65,13 +66,15 @@ export function Sidebar() {
             </div>
             <div className="text-[12px] text-muted">Maestra · Sala Soles</div>
           </div>
-          <a
-            href="#"
-            title="Cerrar sesión"
-            className="flex h-[32px] w-[32px] flex-none items-center justify-center rounded-[10px] bg-cream text-muted-strong"
-          >
-            <LogoutIcon size={16} />
-          </a>
+          <form action={logout} className="flex-none">
+            <button
+              type="submit"
+              title="Cerrar sesión"
+              className="flex h-[32px] w-[32px] cursor-pointer items-center justify-center rounded-[10px] bg-cream text-muted-strong"
+            >
+              <LogoutIcon size={16} />
+            </button>
+          </form>
         </div>
       </div>
     </aside>
