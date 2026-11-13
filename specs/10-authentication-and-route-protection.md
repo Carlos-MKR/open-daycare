@@ -64,21 +64,21 @@ const PUBLIC_PATHS = ["/login", "/activar-cuenta"];
 
 ## Acceptance criteria
 
-- [ ] `/login` inicia con email y contraseña vacíos (sin prefill demo).
-- [ ] `caro@opendaycare.com` / `daycare123` navega a `/` y la sesión queda en cookies.
-- [ ] Credenciales inválidas muestran "Email o contraseña incorrectos." inline y no navegan.
-- [ ] El botón muestra "Ingresando…" y se deshabilita mientras se autentica.
-- [ ] `/`, `/kids` y `/kids/[slug]` sin sesión redirigen a `/login` (vía proxy y vía `requireUser()`).
-- [ ] `/login` con sesión activa redirige a `/`.
-- [ ] `/activar-cuenta` sigue accesible sin sesión.
-- [ ] Recargar una ruta protegida con sesión conserva el acceso.
-- [ ] "Cerrar sesión" del sidebar (desktop) y del topbar (móvil) destruye la sesión y lleva a `/login`.
-- [ ] Tras logout, volver a `/` redirige a `/login`.
-- [ ] La apariencia de `/login`, el sidebar y el topbar no cambia respecto de SPEC 04/01/02 a 922px y 375px.
-- [ ] `proxy.ts` llama `getUser()` antes de generar cualquier respuesta (refresh de cookies no se pierde).
-- [ ] No hay migraciones ni cambios de schema en este spec.
-- [ ] `npx tsc --noEmit` pasa.
-- [ ] `npm run lint` pasa.
+- [x] `/login` inicia con email y contraseña vacíos (sin prefill demo).
+- [x] `caro@opendaycare.com` / `daycare123` navega a `/` y la sesión queda en cookies.
+- [x] Credenciales inválidas muestran "Email o contraseña incorrectos." inline y no navegan.
+- [x] El botón muestra "Ingresando…" y se deshabilita mientras se autentica.
+- [x] `/`, `/kids` y `/kids/[slug]` sin sesión redirigen a `/login` (vía proxy y vía `requireUser()`).
+- [x] `/login` con sesión activa redirige a `/`.
+- [x] `/activar-cuenta` sigue accesible sin sesión.
+- [x] Recargar una ruta protegida con sesión conserva el acceso.
+- [x] "Cerrar sesión" del sidebar (desktop) y del topbar (móvil) destruye la sesión y lleva a `/login`.
+- [x] Tras logout, volver a `/` redirige a `/login`.
+- [x] La apariencia de `/login`, el sidebar y el topbar no cambia respecto de SPEC 04/01/02 a 922px y 375px.
+- [x] `proxy.ts` llama `getUser()` antes de generar cualquier respuesta (refresh de cookies no se pierde).
+- [x] No hay migraciones ni cambios de schema en este spec.
+- [x] `npx tsc --noEmit` pasa.
+- [x] `npm run lint` pasa.
 
 ## Decisions
 
