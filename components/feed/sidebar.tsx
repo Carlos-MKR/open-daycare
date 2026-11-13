@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense, useCallback } from "react";
 import { logout } from "@/actions/auth/logout";
 import { Avatar } from "@/components/ui/avatar";
