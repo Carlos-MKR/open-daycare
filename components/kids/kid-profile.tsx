@@ -11,7 +11,8 @@ type KidProfileProps = {
 };
 
 export function KidProfile({ kid }: KidProfileProps) {
-  const [parents, setParents] = useState(kid.parents);
+  // La vinculación real de padres llega en otra spec; el modal sigue en memoria.
+  const [parents, setParents] = useState<LinkedParent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 

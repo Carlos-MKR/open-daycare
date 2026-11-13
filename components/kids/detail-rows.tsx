@@ -1,15 +1,15 @@
-import type { Kid } from "@/lib/kids";
+import { formatDateLabel, formatMonthYear, type Kid } from "@/lib/kids";
 
 type DetailRowsProps = {
   kid: Kid;
 };
 
-// Filas de datos del perfil: nacimiento, sala e ingreso.
+// Filas de datos reales del perfil (SPEC 12): nacimiento, sala e ingreso.
 export function DetailRows({ kid }: DetailRowsProps) {
   const rows = [
-    { label: "Fecha de nacimiento", value: kid.birthDate },
+    { label: "Fecha de nacimiento", value: formatDateLabel(kid.birthDate) },
     { label: "Sala", value: kid.room },
-    { label: "Ingreso", value: kid.enrolledSince },
+    { label: "Ingresado en", value: formatMonthYear(kid.enrolledAt) },
   ];
 
   return (
@@ -27,6 +27,14 @@ export function DetailRows({ kid }: DetailRowsProps) {
           </span>
         </div>
       ))}
+      {kid.medicalNotes ? (
+        <div className="border-t border-line-faint px-[18px] py-[15px]">
+          <div className="text-[14.5px] text-muted-strong">Notas médicas</div>
+          <p className="mt-[6px] text-[14px] leading-[1.5] text-ink">
+            {kid.medicalNotes}
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

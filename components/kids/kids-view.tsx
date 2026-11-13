@@ -1,46 +1,63 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
+import { createChild } from "@/actions/kids/create-child";
+import type { CreateChildInput } from "@/actions/kids/create-child";
 import { AddChildModal, type AddChildFormState } from "@/components/kids/add-child-modal";
 import { MobileTabBar } from "@/components/feed/mobile-tabbar";
 import { MobileTopBar } from "@/components/feed/mobile-topbar";
 import { Sidebar } from "@/components/feed/sidebar";
 import { KidsBrowser } from "@/components/kids/kids-browser";
 import { PlusIcon } from "@/components/ui/icons";
-import { KIDS, type Kid } from "@/lib/kids";
+import type { Kid, Room } from "@/lib/kids";
 
 type KidsViewProps = {
   displayName: string;
+  rooms: Room[];
+  kids: Kid[];
 };
 
-// Estado client del listado de niños (references/pantallas/ninos.dc.html,
-// SPEC 03). Lo renderiza app/kids/page.tsx tras el guard requireUser().
-export function KidsView({ displayName }: KidsViewProps) {
+// Listado real de niños + alta vía Server Action (SPEC 12). Lo renderiza
+// app/kids/page.tsx tras requireUser(); los datos vienen de la DB y el refresco
+// posterior al alta llega por revalidatePath("/kids").
+export function KidsView({ displayName, rooms, kids }: KidsViewProps) {
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
-  const [kids, setKids] = useState<Kid[]>(KIDS);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isSaving, startTransition] = useTransition();
   const addChildButtonRef = useRef<HTMLButtonElement>(null);
 
-  function handleSave(child: AddChildFormState) {
-    const name = child.fullName.trim();
-    const allergy = child.allergies
-      .split(",")[0]
-      .trim()
-      .toUpperCase();
+  function handleSave(form: AddChildFormState): Promise<boolean> {
+    setServerError(null);
 
-    const newKid: Kid = {
-      slug: `${slugify(name)}-${Date.now()}`,
-      name,
-      ageLabel: "—",
-      birthDate: child.birthDate.trim(),
-      room: child.room,
-      enrolledSince: "hoy",
-      ...(allergy ? { allergyChip: allergy, allergyNote: child.allergies.trim() } : {}),
-      avatarInitial: name.charAt(0).toUpperCase(),
-      avatarTone: "sky",
-      parents: [],
+    const input: CreateChildInput = {
+      fullName: form.fullName,
+      birthDate: form.birthDate,
+      roomId: form.room,
+      allergies: form.allergies,
+      medicalNotes: form.medicalNotes,
     };
 
-    setKids((currentKids) => [...currentKids, newKid]);
+    return new Promise((resolve) => {
+      startTransition(async () => {
+        try {
+          const result = await createChild(input);
+          if (result.ok) {
+            setIsAddChildModalOpen(false);
+          } else {
+            setServerError(result.error);
+          }
+          resolve(result.ok);
+        } catch {
+          setServerError("No pudimos conectar con el servidor. Intentá de nuevo.");
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  function handleCloseModal() {
+    setIsAddChildModalOpen(false);
+    setServerError(null);
   }
 
   return (
@@ -76,19 +93,13 @@ export function KidsView({ displayName }: KidsViewProps) {
       </div>
       <AddChildModal
         isOpen={isAddChildModalOpen}
-        onClose={() => setIsAddChildModalOpen(false)}
+        rooms={rooms}
+        saving={isSaving}
+        serverError={serverError}
+        onClose={handleCloseModal}
         onSave={handleSave}
         returnFocusRef={addChildButtonRef}
       />
     </div>
   );
-}
-
-function slugify(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }

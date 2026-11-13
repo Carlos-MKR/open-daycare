@@ -9,11 +9,12 @@ import {
   type FormEvent,
   type RefObject,
 } from "react";
+import { parseDisplayDateToIso, type Room } from "@/lib/kids";
 
 export type AddChildFormState = {
   fullName: string;
   birthDate: string;
-  room: string;
+  room: string; // id de sala; vacío = usar la sala por defecto
   allergies: string;
   medicalNotes: string;
 };
@@ -22,15 +23,18 @@ type AddChildFormErrors = Partial<Record<keyof AddChildFormState, string>>;
 
 type AddChildModalProps = {
   isOpen: boolean;
+  rooms: Room[];
+  saving: boolean;
+  serverError: string | null;
   onClose: () => void;
-  onSave: (child: AddChildFormState) => void;
+  onSave: (child: AddChildFormState) => Promise<boolean>;
   returnFocusRef?: RefObject<HTMLElement | null>;
 };
 
 const INITIAL_FORM: AddChildFormState = {
   fullName: "",
   birthDate: "",
-  room: "Soles",
+  room: "",
   allergies: "",
   medicalNotes: "",
 };
@@ -43,7 +47,19 @@ const FIELD_LABELS: Record<keyof AddChildFormState, string> = {
   medicalNotes: "Notas médicas",
 };
 
-function validateForm(form: AddChildFormState): AddChildFormErrors {
+const DEFAULT_ROOM_NAME = "Sala Soles";
+
+function roomOptions(rooms: Room[]) {
+  const defaultRoom =
+    rooms.find((room) => room.name === DEFAULT_ROOM_NAME) ?? rooms[0];
+
+  return { rooms, defaultRoomId: defaultRoom?.id ?? "" };
+}
+
+function validateForm(
+  form: AddChildFormState,
+  selectedRoomId: string,
+): AddChildFormErrors {
   const errors: AddChildFormErrors = {};
 
   if (!form.fullName.trim()) {
@@ -52,36 +68,34 @@ function validateForm(form: AddChildFormState): AddChildFormErrors {
 
   if (!form.birthDate.trim()) {
     errors.birthDate = "Ingresa la fecha de nacimiento.";
-  } else if (!isValidDate(form.birthDate)) {
+  } else if (!parseDisplayDateToIso(form.birthDate)) {
     errors.birthDate = "Usa una fecha válida en formato dd/mm/aaaa.";
+  } else if (isFutureDate(form.birthDate)) {
+    errors.birthDate = "La fecha de nacimiento no puede ser futura.";
   }
 
-  if (!form.room) {
+  if (!selectedRoomId) {
     errors.room = "Selecciona una sala.";
   }
 
   return errors;
 }
 
-function isValidDate(value: string) {
-  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+function isFutureDate(displayValue: string): boolean {
+  const iso = parseDisplayDateToIso(displayValue);
+  if (!iso) return false;
 
-  if (!match) {
-    return false;
-  }
+  const now = new Date();
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
-  const [, day, month, year] = match;
-  const date = new Date(Number(year), Number(month) - 1, Number(day));
-
-  return (
-    date.getFullYear() === Number(year) &&
-    date.getMonth() === Number(month) - 1 &&
-    date.getDate() === Number(day)
-  );
+  return iso > todayIso;
 }
 
 export function AddChildModal({
   isOpen,
+  rooms,
+  saving,
+  serverError,
   onClose,
   onSave,
   returnFocusRef,
@@ -91,6 +105,8 @@ export function AddChildModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
+  const { defaultRoomId } = roomOptions(rooms);
+  const selectedRoomId = form.room || defaultRoomId;
 
   useEffect(() => {
     if (!isOpen) {
@@ -158,9 +174,9 @@ export function AddChildModal({
     onClose();
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextErrors = validateForm(form);
+    const nextErrors = validateForm(form, selectedRoomId);
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
@@ -171,8 +187,13 @@ export function AddChildModal({
       return;
     }
 
-    onSave(form);
-    handleClose();
+    const saved = await onSave({ ...form, room: selectedRoomId });
+
+    if (saved) {
+      // El padre cierra el modal; acá solo se limpia el formulario.
+      setForm(INITIAL_FORM);
+      setErrors({});
+    }
   }
 
   function errorId(field: keyof AddChildFormState) {
@@ -209,9 +230,10 @@ export function AddChildModal({
           <button
             type="submit"
             form={`${titleId}-form`}
-            className="text-[15px] font-extrabold text-accent-deep"
+            disabled={saving}
+            className="text-[15px] font-extrabold text-accent-deep disabled:opacity-60"
           >
-            Guardar
+            {saving ? "Guardando…" : "Guardar"}
           </button>
         </div>
 
@@ -250,13 +272,17 @@ export function AddChildModal({
               <span className="relative block">
                 <select
                   name="room"
-                  value={form.room}
+                  value={selectedRoomId}
                   onChange={(event) => updateField("room", event.target.value)}
                   aria-invalid={Boolean(errors.room)}
                   aria-describedby={errors.room ? errorId("room") : undefined}
                   className="w-full appearance-none rounded-[14px] border-[1.5px] border-[#eadfd0] bg-white px-[16px] py-[13px] pr-[42px] text-[15px] font-bold text-ink outline-none"
                 >
-                  <option value="Soles">Soles</option>
+                  {rooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      {room.name}
+                    </option>
+                  ))}
                 </select>
                 <svg
                   aria-hidden="true"
@@ -297,6 +323,15 @@ export function AddChildModal({
               className="min-h-[90px] w-full resize-y rounded-[14px] border-[1.5px] border-[#eadfd0] bg-white px-[16px] py-[13px] text-[15px] leading-[1.5] text-ink outline-none placeholder:text-placeholder"
             />
           </label>
+
+          {serverError ? (
+            <p
+              role="alert"
+              className="rounded-[12px] bg-chip-pending px-[14px] py-[10px] text-[13px] font-bold text-accent-deep"
+            >
+              {serverError}
+            </p>
+          ) : null}
         </form>
       </div>
     </div>
