@@ -9,27 +9,25 @@ import { KidProfile } from "@/components/kids/kid-profile";
 import { ProfileHeader } from "@/components/kids/profile-header";
 import { ChevronLeftIcon } from "@/components/ui/icons";
 import { getDisplayName, requireUser } from "@/lib/auth/require-user";
-import { getKidBySlug, KIDS } from "@/lib/kids";
+import { fetchDaycareId, fetchKidById } from "@/lib/data/children";
+import { createClient } from "@/utils/supabase/server";
 
-// Los perfiles vienen de datos estáticos; se prerenderizan los 8 slugs
-// conocidos y usePathname resuelve sin suspender (cacheComponents).
-export function generateStaticParams() {
-  return KIDS.map((kid) => ({ slug: kid.slug }));
-}
-
-// El cuerpo de la página depende por completo de params; permitimos que la
-// ruta sea blocking para preservar el 404 de slugs desconocidos en lugar de
-// flushear un shell instantáneo (partialPrefetching).
+// El perfil depende de la sesión y de la DB: página dinámica (SPEC 12).
 export const instant = false;
 
-// Perfil del niño (references/pantallas/perfil-nino.dc.html, SPEC 03).
+// Perfil del niño con datos reales (references/pantallas/perfil-nino.dc.html,
+// SPEC 12). La ruta cambió de slug a uuid: dos niños pueden llamarse igual.
 export default async function KidProfilePage({
   params,
-}: PageProps<"/kids/[slug]">) {
+}: PageProps<"/kids/[id]">) {
   const user = await requireUser();
+  const supabase = await createClient();
+  const daycareId = await fetchDaycareId(supabase);
 
-  const { slug } = await params;
-  const kid = getKidBySlug(slug);
+  if (!daycareId) notFound();
+
+  const { id } = await params;
+  const kid = await fetchKidById(supabase, daycareId, id);
   if (!kid) notFound();
 
   return (
@@ -51,7 +49,7 @@ export default async function KidProfilePage({
             <div className="flex flex-wrap items-start gap-[26px]">
               <div className="flex min-w-[300px] flex-1 flex-col gap-[18px]">
                 <ProfileHeader kid={kid} />
-                {kid.allergyNote ? <AllergyAlert note={kid.allergyNote} /> : null}
+                {kid.allergies ? <AllergyAlert note={kid.allergies} /> : null}
                 <DetailRows kid={kid} />
               </div>
 

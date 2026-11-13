@@ -1,5 +1,5 @@
 import { Avatar } from "@/components/ui/avatar";
-import { AVATAR_TONES, type Kid } from "@/lib/kids";
+import { AVATAR_TONES, computeAgeLabel, type Kid } from "@/lib/kids";
 
 type ProfileHeaderProps = {
   kid: Kid;
@@ -19,7 +19,7 @@ export function ProfileHeader({ kid }: ProfileHeaderProps) {
           {kid.name}
         </h1>
         <p className="mt-[3px] text-[15px] text-muted-strong">
-          {kid.ageLabel} · Sala {kid.room}
+          {computeAgeLabel(kid.birthDate)} · {kid.room}
         </p>
       </div>
       <a

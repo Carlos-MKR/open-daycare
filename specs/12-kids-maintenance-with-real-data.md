@@ -1,6 +1,6 @@
 # SPEC 12 — Mantenimiento de niños con datos reales
 
-> **Estado:** Draft
+> **Estado:** Implementado
 > **Depende de:** SPEC 03, SPEC 05, SPEC 10, SPEC 11 (`rooms` y `children` deben existir en la DB remota)
 > **Fecha:** 2026-11-12
 > **Objetivo:** Conectar `/kids` a la base de datos: listar niños reales con estado vacío, guardar el "Agregar niño" del modal existente en `public.children` vía Server Action, y mostrar el perfil del niño con datos reales en `/kids/[id]`, eliminando el mock `KIDS`.
@@ -84,22 +84,22 @@ Formateo en UI: `ageLabel` se calcula desde `birthDate` (ej. "3 años"); `enroll
 
 ## Acceptance criteria
 
-- [ ] `/kids` sin niños muestra el estado vacío en español (sin tarjetas mock; `KIDS` ya no existe en el código).
-- [ ] El selector de sala del modal muestra exactamente "Sala Soles", "Sala Lunas", "Sala Estrellas" leídas de la DB, con "Sala Soles" preseleccionada.
-- [ ] "Guardar" con datos válidos inserta una fila en `public.children` con `room_id` de la sala elegida, `enrolled_at` = fecha del día, `status = 'active'`, y el niño aparece en la sección de su sala sin recargar.
-- [ ] Recargar `/kids` mantiene el niño creado.
-- [ ] Con fecha de nacimiento en el futuro, nombre vacío o sala no seleccionada, el modal muestra el error inline en español y no guarda.
-- [ ] Si la inserción falla (red/DB), el modal permanece abierto con un mensaje de error en español y el botón "Guardar" se deshabilita mientras se guarda.
-- [ ] Click en la tarjeta de un niño real abre `/kids/[id]` con nombre, edad calculada ("N años"), sala, "Ingresado en" con el mes/año de alta, alergias y notas médicas coincidentes con lo cargado.
-- [ ] `/kids/[id]` con uuid inexistente o de otro daycare responde 404.
-- [ ] Un niño con alergias muestra el chip en la tarjeta y la alerta en el perfil; sin alergias no se muestran.
-- [ ] El perfil de un niño real muestra "sin padres vinculados"; el botón Vincular padre sigue funcionando solo en memoria (sin persistencia).
-- [ ] `lib/kids.ts` no exporta datos mock y ningún componente importa `KIDS` ni `getKidBySlug`.
-- [ ] La ruta antigua `/kids/[slug]` ya no existe (las 8 URLs mock devuelven 404).
-- [ ] `/kids` y el perfil son responsivos a 922px y 375px sin overflow horizontal, con la misma paleta/tipografía de las referencias.
-- [ ] `npx tsc --noEmit` pasa.
-- [ ] `npm run lint` pasa.
-- [ ] No hay migraciones ni cambios de schema en este spec.
+- [x] `/kids` sin niños muestra el estado vacío en español (sin tarjetas mock; `KIDS` ya no existe en el código).
+- [x] El selector de sala del modal muestra exactamente "Sala Soles", "Sala Lunas", "Sala Estrellas" leídas de la DB, con "Sala Soles" preseleccionada.
+- [x] "Guardar" con datos válidos inserta una fila en `public.children` con `room_id` de la sala elegida, `enrolled_at` = fecha del día, `status = 'active'`, y el niño aparece en la sección de su sala sin recargar.
+- [x] Recargar `/kids` mantiene el niño creado.
+- [x] Con fecha de nacimiento en el futuro, nombre vacío o sala no seleccionada, el modal muestra el error inline en español y no guarda.
+- [x] Si la inserción falla (red/DB), el modal permanece abierto con un mensaje de error en español y el botón "Guardar" se deshabilita mientras se guarda.
+- [x] Click en la tarjeta de un niño real abre `/kids/[id]` con nombre, edad calculada ("N años"), sala, "Ingresado en" con el mes/año de alta, alergias y notas médicas coincidentes con lo cargado.
+- [x] `/kids/[id]` con uuid inexistente o de otro daycare responde 404.
+- [x] Un niño con alergias muestra el chip en la tarjeta y la alerta en el perfil; sin alergias no se muestran.
+- [x] El perfil de un niño real muestra "sin padres vinculados"; el botón Vincular padre sigue funcionando solo en memoria (sin persistencia).
+- [x] `lib/kids.ts` no exporta datos mock y ningún componente importa `KIDS` ni `getKidBySlug`.
+- [x] La ruta antigua `/kids/[slug]` ya no existe (las 8 URLs mock devuelven 404).
+- [x] `/kids` y el perfil son responsivos a 922px y 375px sin overflow horizontal, con la misma paleta/tipografía de las referencias.
+- [x] `npx tsc --noEmit` pasa.
+- [x] `npm run lint` pasa.
+- [x] No hay migraciones ni cambios de schema en este spec.
 
 ## Decisions
 

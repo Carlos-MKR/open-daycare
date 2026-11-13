@@ -1,19 +1,25 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
-import { ChevronRightIcon } from "@/components/ui/icons";
-import { AVATAR_TONES, linkedParentsLabel, type Kid } from "@/lib/kids";
+import {
+  allergyChipLabel,
+  AVATAR_TONES,
+  computeAgeLabel,
+  type Kid,
+} from "@/lib/kids";
 
 type KidCardProps = {
   kid: Kid;
 };
 
-// Card del listado: chip de alergía si aplica, "VINCULAR" sin padres, chevron en el resto.
+// Card del listado de niños reales (SPEC 12): chip de alergia si aplica y
+// "VINCULAR" porque la vinculación de padres todavía es mock.
 export function KidCard({ kid }: KidCardProps) {
   const tone = AVATAR_TONES[kid.avatarTone];
+  const allergyChip = allergyChipLabel(kid.allergies);
 
   return (
     <Link
-      href={`/kids/${kid.slug}`}
+      href={`/kids/${kid.id}`}
       className="flex min-w-0 items-center gap-[14px] rounded-[18px] border border-line bg-surface p-[16px] shadow-[0_4px_14px_-12px_rgba(120,90,60,.5)] transition duration-150 hover:-translate-y-[2px] hover:border-accent-light"
     >
       <Avatar size="xl" bgColor={tone.bg} textColor={tone.text}>
@@ -24,23 +30,17 @@ export function KidCard({ kid }: KidCardProps) {
           {kid.name}
         </div>
         <div className="text-[13px] text-muted">
-          {kid.ageLabel} · {linkedParentsLabel(kid)}
+          {computeAgeLabel(kid.birthDate)} · sin padres vinculados
         </div>
       </div>
-      {kid.allergyChip ? (
+      {allergyChip ? (
         <span className="flex-none rounded-full bg-chip-allergy px-[9px] py-[5px] text-[11px] font-extrabold text-chip-allergy-text">
-          {kid.allergyChip}
+          {allergyChip}
         </span>
-      ) : kid.parents.length === 0 ? (
+      ) : (
         <span className="flex-none rounded-full bg-chip-link px-[9px] py-[5px] text-[11px] font-extrabold text-chip-link-text">
           VINCULAR
         </span>
-      ) : (
-        <ChevronRightIcon
-          size={18}
-          strokeWidth={2.2}
-          className="flex-none text-chevron"
-        />
       )}
     </Link>
   );
