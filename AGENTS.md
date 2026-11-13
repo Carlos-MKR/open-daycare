@@ -61,6 +61,19 @@ Next.js 16.4.5 + React 19 + Tailwind v4 app for a daycare platform. Currently a 
   3. Verificar con `list_migrations`/`execute_sql` que quedó registrado y aplicado.
 - El CLI de Supabase y Docker NO están instalados, así que el flujo local (`supabase start` / `supabase db push`) no aplica por ahora; si se instalan, el repo de migraciones ya es compatible porque los archivos viven en `supabase/migrations/`.
 
+## Supabase client (Next.js)
+
+Para interactuar con la base de datos desde la aplicación se usan SIEMPRE los paquetes propios de Supabase para Next.js — nunca `fetch` directo a la API REST ni otras librerías PostgREST:
+
+- `@supabase/supabase-js` + `@supabase/ssr` (SSR-aware, sesiones por cookies).
+- Helpers centralizados, no crear clientes sueltos en componentes:
+  - Server Components / Server Actions / Route Handlers: `createClient` de `utils/supabase/server.ts` (`const supabase = await createClient()`).
+  - Client Components (`"use client"`): `createClient` de `utils/supabase/client.ts`.
+  - Refresh de sesión: `updateSession` en `utils/supabase/middleware.ts`, invocado desde `proxy.ts` (raíz) — en Next.js 16 `proxy.ts` reemplaza a `middleware.ts`.
+- Credenciales vía `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` (no versionado; la clave es publishable/anon, segura para el cliente — el access real lo gobierna RLS).
+- El acceso a tablas respeta las policies de RLS de las migraciones (ej. `users` solo SELECT propio con `auth.uid() = id`); no bypassar RLS desde la app.
+- Login real con `supabase.auth` (usuario demo: `caro@opendaycare.com` / `daycare123`) aún no está implementado — `/login` sigue siendo mock hasta la SPEC 04.
+
 ## Reglas de código
 - Usar código limpio, nombres, funciones, variables etc en inglés.
 
