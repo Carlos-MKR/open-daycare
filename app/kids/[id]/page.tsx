@@ -8,7 +8,8 @@ import { DetailRows } from "@/components/kids/detail-rows";
 import { KidProfile } from "@/components/kids/kid-profile";
 import { ProfileHeader } from "@/components/kids/profile-header";
 import { ChevronLeftIcon } from "@/components/ui/icons";
-import { getDisplayName, requireUser } from "@/lib/auth/require-user";
+import { getDisplayName } from "@/lib/auth/require-user";
+import { requireRole, STAFF_ROLES } from "@/lib/auth/require-role";
 import { fetchDaycareId, fetchKidById } from "@/lib/data/children";
 import { fetchLinkedParents } from "@/lib/data/invitations";
 import { createClient } from "@/utils/supabase/server";
@@ -21,7 +22,7 @@ export const instant = false;
 export default async function KidProfilePage({
   params,
 }: PageProps<"/kids/[id]">) {
-  const user = await requireUser();
+  const user = await requireRole(STAFF_ROLES);
   const supabase = await createClient();
   const daycareId = await fetchDaycareId(supabase);
 
