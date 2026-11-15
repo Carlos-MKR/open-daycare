@@ -1,31 +1,43 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { LinkParentModal, type LinkParentFormState } from "@/components/kids/link-parent-modal";
+import { useRouter } from "next/navigation";
+import { linkParent } from "@/actions/kids/link-parent";
+import {
+  LinkParentModal,
+  type LinkParentFormState,
+  type LinkParentSaveResult,
+} from "@/components/kids/link-parent-modal";
 import { ParentsPanel } from "@/components/kids/parents-panel";
 import { SunIcon } from "@/components/ui/icons";
-import { type Kid, type LinkedParent } from "@/lib/kids";
+import type { Kid } from "@/lib/kids";
+import type { InvitedParent } from "@/lib/data/invitations";
 
 type KidProfileProps = {
   kid: Kid;
+  // Vinculados reales (invitaciones + parent_children) desde el Server Component.
+  parents: InvitedParent[];
 };
 
-export function KidProfile({ kid }: KidProfileProps) {
-  // La vinculación real de padres llega en otra spec; el modal sigue en memoria.
-  const [parents, setParents] = useState<LinkedParent[]>([]);
+export function KidProfile({ kid, parents }: KidProfileProps) {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  function handleSave(form: LinkParentFormState) {
-    const newParent: LinkedParent = {
-      name: form.name.trim(),
-      role: `${form.relationship} · invitación enviada`,
-      status: "pending",
-      initial: form.name.trim().charAt(0).toUpperCase(),
-      tone: "sky",
-    };
+  // SPEC 13: el modal envía invitaciones reales; la lista se refresca desde la DB.
+  async function handleSave(form: LinkParentFormState): Promise<LinkParentSaveResult> {
+    const result = await linkParent({
+      childId: kid.id,
+      parentName: form.name,
+      email: form.email,
+      relationshipLabel: form.relationship,
+    });
 
-    setParents((currentParents) => [...currentParents, newParent]);
+    if (result.ok) {
+      router.refresh();
+    }
+
+    return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
   return (

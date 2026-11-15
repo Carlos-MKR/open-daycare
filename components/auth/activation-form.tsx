@@ -1,12 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { activateAccount } from "@/actions/auth/activate-account";
 import { FormField } from "@/components/auth/form-field";
 
-type ActivationFormState = {
-  invitationCode: string;
+type ActivationFormProps = {
+  // Datos traídos de la invitación real: no editables por el invitado.
+  code: string;
   email: string;
+};
+
+type ActivationFormState = {
   password: string;
   photoConsent: boolean;
 };
@@ -14,8 +18,6 @@ type ActivationFormState = {
 type ActivationErrors = Partial<Record<keyof ActivationFormState, string>>;
 
 const initialState: ActivationFormState = {
-  invitationCode: "7K4P9",
-  email: "lucia.fernandez@gmail.com",
   password: "",
   photoConsent: true,
 };
@@ -23,30 +25,48 @@ const initialState: ActivationFormState = {
 function validate(state: ActivationFormState): ActivationErrors {
   const errors: ActivationErrors = {};
 
-  if (!state.invitationCode) errors.invitationCode = "Ingresá tu código de invitación.";
-  if (!state.email) {
-    errors.email = "Ingresá tu email.";
-  } else if (!/^\S+@\S+\.\S+$/.test(state.email)) {
-    errors.email = "Ingresá un email válido.";
+  if (!state.password) {
+    errors.password = "Creá una contraseña.";
+  } else if (state.password.length < 8) {
+    errors.password = "La contraseña necesita al menos 8 caracteres.";
   }
-  if (!state.password) errors.password = "Creá una contraseña.";
-  if (!state.photoConsent) errors.photoConsent = "Necesitamos tu autorización para continuar.";
+
+  if (!state.photoConsent) {
+    errors.photoConsent = "Necesitamos tu autorización para continuar.";
+  }
 
   return errors;
 }
 
-export function ActivationForm() {
-  const router = useRouter();
+export function ActivationForm({ code, email }: ActivationFormProps) {
   const [state, setState] = useState(initialState);
   const [errors, setErrors] = useState<ActivationErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  // Registro real (SPEC 13): el action crea la cuenta, consume el código y
+  // redirige a /familia. El éxito nunca vuelve acá; solo los errores.
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validate(state);
     setErrors(nextErrors);
+    setFormError(null);
 
-    if (Object.keys(nextErrors).length === 0) {
-      router.push("/");
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setSubmitting(true);
+
+    const result = await activateAccount({
+      code,
+      email,
+      password: state.password,
+      photoConsent: state.photoConsent,
+    });
+
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setFormError(result.error);
     }
   }
 
@@ -55,19 +75,18 @@ export function ActivationForm() {
       <FormField
         id="invitation-code"
         label="CÓDIGO DE INVITACIÓN"
-        value={state.invitationCode}
-        onChange={(event) => setState({ ...state, invitationCode: event.target.value.toUpperCase() })}
-        error={errors.invitationCode}
-        className="font-display text-[18px] font-bold tracking-[3px]"
+        value={code}
+        readOnly
+        className="bg-cream font-display text-[18px] font-bold tracking-[3px] text-muted-strong"
         autoComplete="one-time-code"
       />
       <FormField
         id="activation-email"
         label="EMAIL"
         type="email"
-        value={state.email}
-        onChange={(event) => setState({ ...state, email: event.target.value })}
-        error={errors.email}
+        value={email}
+        readOnly
+        className="bg-cream text-muted-strong"
         autoComplete="email"
       />
       <FormField
@@ -115,11 +134,15 @@ export function ActivationForm() {
           <p className="mt-[6px] text-[12px] font-semibold text-alert-title">{errors.photoConsent}</p>
         ) : null}
       </div>
+      {formError ? (
+        <p className="text-[13px] font-bold text-alert-title">{formError}</p>
+      ) : null}
       <button
         type="submit"
-        className="w-full rounded-[15px] bg-gradient-to-b from-accent-light to-accent-strong px-[16px] py-[15px] text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)] transition hover:brightness-105"
+        disabled={submitting}
+        className="w-full rounded-[15px] bg-gradient-to-b from-accent-light to-accent-strong px-[16px] py-[15px] text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)] transition hover:brightness-105 disabled:opacity-70"
       >
-        Activar mi cuenta
+        {submitting ? "Activando…" : "Activar mi cuenta"}
       </button>
     </form>
   );

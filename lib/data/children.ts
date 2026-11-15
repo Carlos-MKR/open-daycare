@@ -113,5 +113,6 @@ function toKid(row: ChildRow, roomName: string): Kid {
     ...(row.medical_notes ? { medicalNotes: row.medical_notes } : {}),
     avatarInitial: avatarInitialFor(row.full_name),
     avatarTone: toneForId(row.id),
+    linkedParents: 0, // las páginas lo sobrescriben con attachLinkedParentCounts
   };
 }

@@ -1,77 +1,59 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ImageIcon, PlusIcon, XIcon } from "@/components/ui/icons";
-import type { FeedPost } from "@/lib/feed";
+import { createPost } from "@/actions/posts/create-post";
+import { XIcon } from "@/components/ui/icons";
+import { AVATAR_TONES, type Kid, type Room } from "@/lib/kids";
+import { POST_TYPES, POST_TYPE_LABELS, type PostType } from "@/lib/posts";
 
-export type PublicationTarget = "mateo" | "sofia" | "benjamin" | "all";
-export type PublicationType =
-  | "comida"
-  | "siesta"
-  | "actividad"
-  | "logro"
-  | "animo"
-  | "foto"
-  | "anuncio";
-
-type FormState = {
-  targets: PublicationTarget[];
-  type: PublicationType;
-  description: string;
-  photoSelected: boolean;
-};
-
-type FormErrors = Partial<Record<"targets" | "type" | "description", string>>;
+// Estado de la audiencia real cargada por Server Action al abrir el modal.
+export type ComposerAudienceState =
+  | { status: "loading" }
+  | { status: "error"; error: string }
+  | { status: "ready"; kids: Kid[]; rooms: Room[] };
 
 type CreatePublicationModalProps = {
+  audience: ComposerAudienceState;
+  onRetryAudience: () => void;
   onClose: () => void;
-  onPublish: (post: FeedPost) => void;
   triggerRef?: React.RefObject<HTMLElement | null>;
 };
 
-const INITIAL_FORM: FormState = {
-  targets: ["mateo"],
-  type: "comida",
-  description: "",
-  photoSelected: false,
+type FormErrors = Partial<
+  Record<"targets" | "room" | "type" | "description", string>
+>;
+
+// Colores de chips del diseño (SPEC 07), ahora por tipo real de la DB.
+const TYPE_CHIP_STYLES: Record<PostType, string> = {
+  meal: "bg-avatar-amber text-avatar-amber-text",
+  nap: "bg-avatar-violet text-avatar-violet-text",
+  activity: "bg-activity text-white",
+  achievement: "bg-success-soft text-success",
+  mood: "bg-chip-link text-chip-link-text",
+  announcement: "bg-announcement-soft text-announcement",
 };
 
-const TARGETS: Array<{ id: PublicationTarget; label: string; initial?: string; tone: string }> = [
-  { id: "mateo", label: "Mateo", initial: "M", tone: "bg-avatar-sky text-avatar-sky-text" },
-  { id: "sofia", label: "Sofía", initial: "S", tone: "bg-avatar-rose text-avatar-rose-text" },
-  { id: "benjamin", label: "Benjamín", initial: "B", tone: "bg-avatar-mint text-avatar-mint-text" },
-  { id: "all", label: "Toda la sala", tone: "" },
-];
-
-const TYPES: Array<{ id: PublicationType; label: string; className: string }> = [
-  { id: "comida", label: "Comida", className: "bg-avatar-amber text-avatar-amber-text" },
-  { id: "siesta", label: "Siesta", className: "bg-avatar-violet text-avatar-violet-text" },
-  { id: "actividad", label: "Actividad", className: "bg-activity text-white" },
-  { id: "logro", label: "Logro", className: "bg-success-soft text-success" },
-  { id: "animo", label: "Ánimo", className: "bg-chip-link text-chip-link-text" },
-  { id: "foto", label: "Foto", className: "bg-chip-allergy text-chip-allergy-text" },
-  { id: "anuncio", label: "Anuncio", className: "bg-announcement-soft text-announcement" },
-];
-
-function audienceFor(targets: PublicationTarget[]) {
-  if (targets.includes("all")) return "toda la sala";
-  const names = targets
-    .map((target) => TARGETS.find((item) => item.id === target)?.label)
-    .filter(Boolean);
-  return names.length === 1 ? `familia de ${names[0]}` : `familias de ${names.join(", ")}`;
-}
-
-function variantFor(type: PublicationType): FeedPost["variant"] {
-  if (type === "anuncio") return "announcement";
-  if (type === "logro" || type === "animo") return "achievement";
-  return "activity";
-}
-
-export function CreatePublicationModal({ onClose, onPublish, triggerRef }: CreatePublicationModalProps) {
-  const [form, setForm] = useState<FormState>(INITIAL_FORM);
+export function CreatePublicationModal({
+  audience,
+  onRetryAudience,
+  onClose,
+  triggerRef,
+}: CreatePublicationModalProps) {
+  const [targetIds, setTargetIds] = useState<string[]>([]);
+  const [salaMode, setSalaMode] = useState(false);
+  const [roomId, setRoomId] = useState("");
+  const [type, setType] = useState<PostType>("meal");
+  const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const firstControlRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  const close = () => {
+    onClose();
+    triggerRef?.current?.focus();
+  };
 
   useEffect(() => {
     firstControlRef.current?.focus();
@@ -96,50 +78,66 @@ export function CreatePublicationModal({ onClose, onPublish, triggerRef }: Creat
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  const close = () => {
-    setForm(INITIAL_FORM);
-    setErrors({});
-    onClose();
-    triggerRef?.current?.focus();
-  };
-
-  const toggleTarget = (target: PublicationTarget) => {
-    setForm((current) => {
-      if (target === "all") return { ...current, targets: ["all"] };
-      const withoutAll = current.targets.filter((item) => item !== "all");
-      const targets = withoutAll.includes(target)
-        ? withoutAll.filter((item) => item !== target)
-        : [...withoutAll, target];
-      return { ...current, targets };
-    });
+  const toggleChild = (id: string) => {
+    setSalaMode(false);
+    setTargetIds((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
+    );
     setErrors((current) => ({ ...current, targets: undefined }));
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const toggleSala = () => {
+    setSalaMode((current) => !current);
+    setTargetIds([]);
+    setErrors((current) => ({ ...current, targets: undefined }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (audience.status !== "ready" || submitting) return;
+
     const nextErrors: FormErrors = {};
-    if (!form.targets.length) nextErrors.targets = "Seleccioná al menos un destinatario.";
-    if (!form.type) nextErrors.type = "Seleccioná un tipo de publicación.";
-    if (!form.description.trim()) nextErrors.description = "Escribí una descripción.";
-    if (Object.keys(nextErrors).length) {
-      setErrors(nextErrors);
-      return;
+
+    if (!salaMode && targetIds.length === 0) {
+      nextErrors.targets = "Seleccioná al menos un destinatario.";
     }
 
-    const typeLabel = TYPES.find((item) => item.id === form.type)?.label ?? "Publicación";
-    onPublish({
-      id: `publication-${Date.now()}`,
-      title: form.targets.includes("all") ? "Toda la sala" : TARGETS.find((item) => item.id === form.targets[0])?.label ?? "Publicación",
-      time: "Ahora",
-      authorLabel: "publicado por vos",
-      variant: variantFor(form.type),
-      audience: `${audienceFor(form.targets)} · ${typeLabel.toLowerCase()}`,
-      body: form.description.trim(),
-      photoPlaceholder: form.photoSelected ? "Foto agregada" : undefined,
-      likes: 0,
-      comments: 0,
+    if (salaMode && !roomId) {
+      nextErrors.room = "Elegí la sala del aviso.";
+    }
+
+    if (salaMode && type !== "announcement") {
+      nextErrors.type = "Los avisos para toda la sala son de tipo Anuncio.";
+    }
+
+    if (!description.trim()) {
+      nextErrors.description = "Escribí una descripción.";
+    }
+
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setServerError(null);
+    setSubmitting(true);
+
+    const result = await createPost({
+      type,
+      body: description,
+      childIds: salaMode ? [] : targetIds,
+      roomId: salaMode ? roomId : null,
     });
-    close();
+
+    setSubmitting(false);
+
+    if (result.ok) {
+      close();
+    } else {
+      setServerError(result.error);
+    }
   };
 
   return (
@@ -158,7 +156,13 @@ export function CreatePublicationModal({ onClose, onPublish, triggerRef }: Creat
           <header className="relative flex items-center justify-between border-b border-line px-[20px] py-[18px] md:px-[26px] md:py-[20px]">
             <button type="button" onClick={close} className="text-[15px] font-bold text-muted-strong">Cancelar</button>
             <h1 id="create-publication-title" className="font-display text-[18px] font-semibold text-ink">Nueva publicación</h1>
-            <button type="submit" className="text-[15px] font-extrabold text-accent-deep">Publicar</button>
+            <button
+              type="submit"
+              disabled={audience.status !== "ready" || submitting}
+              className="text-[15px] font-extrabold text-accent-deep disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? "Publicando…" : "Publicar"}
+            </button>
             <button type="button" aria-label="Cerrar" onClick={close} className="absolute right-[8px] top-[6px] rounded-full p-[2px] text-muted-strong hover:bg-cream">
               <XIcon size={14} />
             </button>
@@ -167,39 +171,98 @@ export function CreatePublicationModal({ onClose, onPublish, triggerRef }: Creat
           <div className="p-[20px] md:p-[26px]">
             <fieldset className="mb-[22px]">
               <legend className="mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-muted-strong">PARA</legend>
-              <div className="flex flex-wrap gap-[9px]">
-                {TARGETS.map((target, index) => {
-                  const selected = form.targets.includes(target.id);
-                  return (
+
+              {audience.status === "loading" ? (
+                <p className="text-[14px] text-muted-strong">Cargando niños de la sala…</p>
+              ) : null}
+
+              {audience.status === "error" ? (
+                <div className="flex flex-wrap items-center gap-[10px]">
+                  <p className="text-[13px] font-bold text-alert-title">{audience.error}</p>
+                  <button
+                    type="button"
+                    onClick={onRetryAudience}
+                    className="rounded-full border border-line bg-surface px-[14px] py-[6px] text-[13px] font-extrabold text-edit-link"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              ) : null}
+
+              {audience.status === "ready" ? (
+                <>
+                  <div className="flex flex-wrap gap-[9px]">
+                    {audience.kids.map((kid, index) => {
+                      const tone = AVATAR_TONES[kid.avatarTone];
+                      const selected = !salaMode && targetIds.includes(kid.id);
+
+                      return (
+                        <button
+                          key={kid.id}
+                          ref={index === 0 ? firstControlRef : undefined}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() => toggleChild(kid.id)}
+                          className={`flex items-center gap-[8px] rounded-full border-[1.5px] px-[6px] py-[6px] text-[14px] font-bold ${selected ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink-soft"}`}
+                        >
+                          <span className={`flex h-[26px] w-[26px] items-center justify-center rounded-full font-display text-[13px] font-semibold ${tone.bg} ${tone.text}`}>
+                            {kid.avatarInitial}
+                          </span>
+                          <span className="pr-[8px]">{kid.name}</span>
+                        </button>
+                      );
+                    })}
                     <button
-                      key={target.id}
-                      ref={index === 0 ? firstControlRef : undefined}
                       type="button"
-                      aria-pressed={selected}
-                      onClick={() => toggleTarget(target.id)}
-                      className={`flex items-center gap-[8px] rounded-full border-[1.5px] px-[6px] py-[6px] text-[14px] font-bold ${selected ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink-soft"}`}
+                      aria-pressed={salaMode}
+                      onClick={toggleSala}
+                      className={`rounded-full border-[1.5px] px-[16px] py-[8px] text-[14px] font-bold ${salaMode ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink-soft"}`}
                     >
-                      {target.initial && <span className={`flex h-[26px] w-[26px] items-center justify-center rounded-full font-display text-[13px] font-semibold ${selected ? target.tone : target.tone}`}>{target.initial}</span>}
-                      <span className={target.initial ? "pr-[8px]" : "px-[10px]"}>{target.label}</span>
+                      Toda la sala
                     </button>
-                  );
-                })}
-              </div>
-              {errors.targets && <p className="mt-[6px] text-[12px] font-bold text-alert-title">{errors.targets}</p>}
+                  </div>
+                  {errors.targets && <p className="mt-[6px] text-[12px] font-bold text-alert-title">{errors.targets}</p>}
+
+                  {salaMode ? (
+                    <label className="mt-[14px] block">
+                      <span className="mb-[6px] block text-[12px] font-extrabold tracking-[.7px] text-muted-strong">SALA</span>
+                      <select
+                        value={roomId}
+                        onChange={(event) => {
+                          setRoomId(event.target.value);
+                          setErrors((current) => ({ ...current, room: undefined }));
+                        }}
+                        className="w-full rounded-[14px] border-[1.5px] border-line bg-white px-[14px] py-[11px] text-[15px] text-ink outline-none focus:border-accent"
+                      >
+                        <option value="">Elegí una sala…</option>
+                        {audience.rooms.map((room) => (
+                          <option key={room.id} value={room.id}>
+                            {room.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.room && <p className="mt-[6px] text-[12px] font-bold text-alert-title">{errors.room}</p>}
+                    </label>
+                  ) : null}
+                </>
+              ) : null}
             </fieldset>
 
             <fieldset className="mb-[22px]">
               <legend className="mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-muted-strong">TIPO</legend>
               <div className="flex flex-wrap gap-[9px]">
-                {TYPES.map((type) => (
+                {POST_TYPES.map((item) => (
                   <button
-                    key={type.id}
+                    key={item}
                     type="button"
-                    aria-pressed={form.type === type.id}
-                    onClick={() => setForm((current) => ({ ...current, type: type.id }))}
-                    className={`rounded-full px-[16px] py-[8px] text-[13.5px] font-extrabold ${type.className} ${form.type === type.id ? "ring-2 ring-ink ring-offset-2 ring-offset-[#fbf4ec]" : ""}`}
+                    aria-pressed={type === item}
+                    onClick={() => {
+                      setType(item);
+                      setErrors((current) => ({ ...current, type: undefined }));
+                    }}
+                    className={`rounded-full px-[16px] py-[8px] text-[13.5px] font-extrabold ${TYPE_CHIP_STYLES[item]} ${type === item ? "ring-2 ring-ink ring-offset-2 ring-offset-[#fbf4ec]" : ""}`}
                   >
-                    {type.label}
+                    {POST_TYPE_LABELS[item]}
                   </button>
                 ))}
               </div>
@@ -209,26 +272,19 @@ export function CreatePublicationModal({ onClose, onPublish, triggerRef }: Creat
             <label className="mb-[10px] block text-[12px] font-extrabold tracking-[.7px] text-muted-strong" htmlFor="publication-description">DESCRIPCIÓN</label>
             <textarea
               id="publication-description"
-              value={form.description}
-              onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+              value={description}
+              onChange={(event) => {
+                setDescription(event.target.value);
+                setErrors((current) => ({ ...current, description: undefined }));
+              }}
               placeholder="Contá cómo le fue hoy…"
               className="mb-[6px] min-h-[120px] w-full resize-y rounded-[14px] border-[1.5px] border-line bg-white px-[16px] py-[14px] text-[15px] leading-[1.5] text-ink outline-none focus:border-accent"
             />
             {errors.description && <p className="mb-[16px] text-[12px] font-bold text-alert-title">{errors.description}</p>}
 
-            <div className="mb-[10px] text-[12px] font-extrabold tracking-[.7px] text-muted-strong">FOTOS</div>
-            <div className="flex gap-[12px]">
-              <div className="flex h-[96px] w-[96px] items-center justify-center rounded-[14px] border border-line bg-photo-bg text-chevron"><ImageIcon size={26} strokeWidth={1.7} /></div>
-              <button
-                type="button"
-                aria-pressed={form.photoSelected}
-                onClick={() => setForm((current) => ({ ...current, photoSelected: !current.photoSelected }))}
-                className={`flex h-[96px] w-[96px] flex-col items-center justify-center gap-[6px] rounded-[14px] border-[1.5px] border-dashed bg-photo-bg text-[12px] text-photo-fg ${form.photoSelected ? "border-accent-deep text-accent-deep" : "border-dashed-stroke"}`}
-              >
-                <PlusIcon size={22} className="text-accent-deep" />
-                {form.photoSelected ? "Agregada" : "Agregar"}
-              </button>
-            </div>
+            {serverError ? (
+              <p role="alert" className="text-[13px] font-bold text-alert-title">{serverError}</p>
+            ) : null}
           </div>
         </form>
       </div>
