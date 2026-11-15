@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { activateAccount } from "@/actions/auth/activate-account";
 import { FormField } from "@/components/auth/form-field";
 
 type ActivationFormProps = {
@@ -39,18 +39,34 @@ function validate(state: ActivationFormState): ActivationErrors {
 }
 
 export function ActivationForm({ code, email }: ActivationFormProps) {
-  const router = useRouter();
   const [state, setState] = useState(initialState);
   const [errors, setErrors] = useState<ActivationErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Paso 8 conecta esto al action real (signUp + accept_invitation).
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  // Registro real (SPEC 13): el action crea la cuenta, consume el código y
+  // redirige a /familia. El éxito nunca vuelve acá; solo los errores.
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validate(state);
     setErrors(nextErrors);
+    setFormError(null);
 
-    if (Object.keys(nextErrors).length === 0) {
-      router.push("/");
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setSubmitting(true);
+
+    const result = await activateAccount({
+      code,
+      email,
+      password: state.password,
+      photoConsent: state.photoConsent,
+    });
+
+    setSubmitting(false);
+
+    if (!result.ok) {
+      setFormError(result.error);
     }
   }
 
@@ -118,11 +134,15 @@ export function ActivationForm({ code, email }: ActivationFormProps) {
           <p className="mt-[6px] text-[12px] font-semibold text-alert-title">{errors.photoConsent}</p>
         ) : null}
       </div>
+      {formError ? (
+        <p className="text-[13px] font-bold text-alert-title">{formError}</p>
+      ) : null}
       <button
         type="submit"
-        className="w-full rounded-[15px] bg-gradient-to-b from-accent-light to-accent-strong px-[16px] py-[15px] text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)] transition hover:brightness-105"
+        disabled={submitting}
+        className="w-full rounded-[15px] bg-gradient-to-b from-accent-light to-accent-strong px-[16px] py-[15px] text-[16px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,0.7)] transition hover:brightness-105 disabled:opacity-70"
       >
-        Activar mi cuenta
+        {submitting ? "Activando…" : "Activar mi cuenta"}
       </button>
     </form>
   );
