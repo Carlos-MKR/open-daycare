@@ -10,12 +10,13 @@ import {
 } from "@/components/kids/link-parent-modal";
 import { ParentsPanel } from "@/components/kids/parents-panel";
 import { SunIcon } from "@/components/ui/icons";
-import type { Kid, LinkedParent } from "@/lib/kids";
+import type { Kid } from "@/lib/kids";
+import type { InvitedParent } from "@/lib/data/invitations";
 
 type KidProfileProps = {
   kid: Kid;
   // Vinculados reales (invitaciones + parent_children) desde el Server Component.
-  parents: LinkedParent[];
+  parents: InvitedParent[];
 };
 
 export function KidProfile({ kid, parents }: KidProfileProps) {

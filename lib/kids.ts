@@ -3,16 +3,6 @@
 
 export type AvatarTone = "sky" | "rose" | "mint" | "amber" | "violet";
 
-export type ParentStatus = "active" | "pending";
-
-export type LinkedParent = {
-  name: string;
-  role: string;
-  status: ParentStatus;
-  initial: string;
-  tone: AvatarTone;
-};
-
 export type Room = {
   id: string;
   name: string;
@@ -29,6 +19,7 @@ export type Kid = {
   medicalNotes?: string;
   avatarInitial: string;
   avatarTone: AvatarTone;
+  linkedParents: number; // aceptados + invitaciones pendientes vigentes (SPEC 13)
 };
 
 export type AvatarToneStyles = {
@@ -64,6 +55,14 @@ export function toneForId(id: string): AvatarTone {
 
 export function avatarInitialFor(name: string): string {
   return name.trim().charAt(0).toUpperCase() || "?";
+}
+
+// "2 padres vinculados" / "1 padre vinculado" / "sin padres vinculados" (SPEC 03).
+export function linkedParentsLabel(count: number): string {
+  if (count <= 0) return "sin padres vinculados";
+  if (count === 1) return "1 padre vinculado";
+
+  return `${count} padres vinculados`;
 }
 
 // "3 años" / "1 año" / "Menos de 1 año" desde una fecha ISO.

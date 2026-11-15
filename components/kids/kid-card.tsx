@@ -4,6 +4,7 @@ import {
   allergyChipLabel,
   AVATAR_TONES,
   computeAgeLabel,
+  linkedParentsLabel,
   type Kid,
 } from "@/lib/kids";
 
@@ -11,8 +12,8 @@ type KidCardProps = {
   kid: Kid;
 };
 
-// Card del listado de niños reales (SPEC 12): chip de alergia si aplica y
-// "VINCULAR" porque la vinculación de padres todavía es mock.
+// Card del listado de niños reales (SPEC 12/13): chip de alergia si aplica y
+// "VINCULAR" cuando todavía no tiene ningún padre vinculado.
 export function KidCard({ kid }: KidCardProps) {
   const tone = AVATAR_TONES[kid.avatarTone];
   const allergyChip = allergyChipLabel(kid.allergies);
@@ -30,7 +31,7 @@ export function KidCard({ kid }: KidCardProps) {
           {kid.name}
         </div>
         <div className="text-[13px] text-muted">
-          {computeAgeLabel(kid.birthDate)} · sin padres vinculados
+          {computeAgeLabel(kid.birthDate)} · {linkedParentsLabel(kid.linkedParents)}
         </div>
       </div>
       {allergyChip ? (

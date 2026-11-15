@@ -10,6 +10,7 @@ import { ProfileHeader } from "@/components/kids/profile-header";
 import { ChevronLeftIcon } from "@/components/ui/icons";
 import { getDisplayName, requireUser } from "@/lib/auth/require-user";
 import { fetchDaycareId, fetchKidById } from "@/lib/data/children";
+import { fetchLinkedParents } from "@/lib/data/invitations";
 import { createClient } from "@/utils/supabase/server";
 
 // El perfil depende de la sesión y de la DB: página dinámica (SPEC 12).
@@ -27,7 +28,10 @@ export default async function KidProfilePage({
   if (!daycareId) notFound();
 
   const { id } = await params;
-  const kid = await fetchKidById(supabase, daycareId, id);
+  const [kid, linkedParents] = await Promise.all([
+    fetchKidById(supabase, daycareId, id),
+    fetchLinkedParents(supabase, id),
+  ]);
   if (!kid) notFound();
 
   return (
@@ -53,7 +57,7 @@ export default async function KidProfilePage({
                 <DetailRows kid={kid} />
               </div>
 
-              <KidProfile kid={kid} parents={[]} />
+              <KidProfile kid={kid} parents={linkedParents} />
             </div>
           </div>
         </main>
