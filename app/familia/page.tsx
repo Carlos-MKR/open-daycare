@@ -1,21 +1,25 @@
 import { logout } from "@/actions/auth/logout";
 import { AuthLogo } from "@/components/auth/auth-logo";
 import { Avatar } from "@/components/ui/avatar";
+import { PostCard } from "@/components/feed/post-card";
+import { SectionLabel } from "@/components/feed/section-label";
 import { getDisplayName } from "@/lib/auth/require-user";
 import { requireRole, PARENT_ROLES } from "@/lib/auth/require-role";
 import { fetchLinkedChildren } from "@/lib/data/invitations";
+import { fetchPostsForParent } from "@/lib/data/posts";
 import { AVATAR_TONES, computeAgeLabel } from "@/lib/kids";
 import { createClient } from "@/utils/supabase/server";
 
-// Espacio del padre (SPEC 13): sesión + vínculos desde la DB.
+// Espacio del padre (SPEC 13/14): hijos vinculados + feed real limitado por RLS.
 export const instant = false;
 
-// El feed real del niño llega con la spec de publicaciones; acá solo los
-// niños vinculados y un placeholder honesto.
 export default async function FamiliaPage() {
   const user = await requireRole(PARENT_ROLES);
   const supabase = await createClient();
-  const kids = await fetchLinkedChildren(supabase, user.id);
+  const [kids, posts] = await Promise.all([
+    fetchLinkedChildren(supabase, user.id),
+    fetchPostsForParent(supabase),
+  ]);
 
   return (
     <div className="min-h-screen bg-cream">
@@ -61,10 +65,21 @@ export default async function FamiliaPage() {
           </div>
         )}
 
-        <div className="mt-[22px] rounded-[16px] border border-line bg-[#e3ecfb] px-[18px] py-[16px] text-[14px] leading-[1.5] text-[#3f5694]">
-          El feed de tu hijo llega pronto: acá vas a ver las publicaciones que
-          la guardería comparta sobre él.
-        </div>
+        {posts.length === 0 ? (
+          <div className="mt-[24px] rounded-[16px] border-[1.5px] border-dashed border-line bg-surface px-[18px] py-[22px] text-center text-[14.5px] leading-[1.5] text-muted-strong">
+            Todavía no hay novedades de tus hijos. Te avisamos cuando la
+            guardería publique.
+          </div>
+        ) : (
+          <div className="mt-[28px]">
+            <SectionLabel label="NOVEDADES" />
+            <div className="flex flex-col gap-[16px]">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          </div>
+        )}
 
         <form action={logout} className="mt-[26px]">
           <button

@@ -1,44 +1,61 @@
 "use client";
 
-import { createContext, useCallback, useContext, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { CreatePublicationModal } from "@/components/feed/create-publication-modal";
-import type { FeedPost } from "@/lib/feed";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from "react";
+import { fetchComposerAudience } from "@/actions/posts/composer-audience";
+import {
+  CreatePublicationModal,
+  type ComposerAudienceState,
+} from "@/components/feed/create-publication-modal";
 
 type ComposerContext = {
-  newPosts: FeedPost[];
   open: (trigger: HTMLElement) => void;
 };
 
 const PublicationComposerContext = createContext<ComposerContext | null>(null);
 
 // Provee el modal de publicación a todas las pantallas con sidebar.
+// Los destinatarios (niños/salas reales) se cargan al abrir, vía Server
+// Action, porque el provider vive en el layout raíz y no tiene sesión ahí.
 export function PublicationComposerProvider({ children }: { children: React.ReactNode }) {
-  const [newPosts, setNewPosts] = useState<FeedPost[]>([]);
+  const [audience, setAudience] = useState<ComposerAudienceState>({ status: "loading" });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const triggerRef = useRef<HTMLElement | null>(null);
-  const router = useRouter();
 
-  const open = useCallback((trigger: HTMLElement) => {
-    triggerRef.current = trigger;
-    setIsModalOpen(true);
+  const loadAudience = useCallback(async () => {
+    setAudience({ status: "loading" });
+
+    const result = await fetchComposerAudience();
+
+    setAudience(
+      result.ok
+        ? { status: "ready", kids: result.kids, rooms: result.rooms }
+        : { status: "error", error: result.error },
+    );
   }, []);
 
-  const addPost = useCallback(
-    (post: FeedPost) => {
-      setNewPosts((current) => [post, ...current]);
-      router.push("/");
+  const open = useCallback(
+    (trigger: HTMLElement) => {
+      triggerRef.current = trigger;
+      setIsModalOpen(true);
+      void loadAudience();
     },
-    [router],
+    [loadAudience],
   );
 
   return (
-    <PublicationComposerContext.Provider value={{ newPosts, open }}>
+    <PublicationComposerContext.Provider value={{ open }}>
       {children}
       {isModalOpen && (
         <CreatePublicationModal
+          audience={audience}
+          onRetryAudience={loadAudience}
           onClose={() => setIsModalOpen(false)}
-          onPublish={addPost}
           triggerRef={triggerRef}
         />
       )}
