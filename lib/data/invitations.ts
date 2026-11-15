@@ -15,72 +15,42 @@ export type InvitedParent = {
   status: "pending" | "expired" | "active";
 };
 
-type ParentChildRow = {
-  created_at: string;
-  relationship: Relationship;
-  users: { full_name: string } | null;
-};
-
 type InvitationRow = {
   created_at: string;
   full_name: string;
   relationship: Relationship;
-  status: "pending" | "expired";
+  status: "pending" | "expired" | "accepted";
   expires_at: string;
 };
 
-// Panel del perfil: aceptados (parent_children) + invitaciones vigentes o vencidas.
-// Las invitaciones `accepted` no se listan: ya viven como fila en parent_children.
+// Panel del perfil: todo desde `invitations` (RLS staff-legible). Los aceptados
+// se muestran vía status `accepted` con el nombre de la invitación: el nombre
+// real de `users` no es legible por staff (RLS propia), y `parent_children`
+// sigue siendo el vínculo autoritativo para /familia.
 export async function fetchLinkedParents(
   supabase: SupabaseServerClient,
   childId: string,
 ): Promise<InvitedParent[]> {
-  const [linkedResult, invitationResult] = await Promise.all([
-    supabase
-      .from("parent_children")
-      .select("created_at, relationship, users ( full_name )")
-      .eq("child_id", childId)
-      .order("created_at"),
-    supabase
-      .from("invitations")
-      .select("created_at, full_name, relationship, status, expires_at")
-      .eq("child_id", childId)
-      .in("status", ["pending", "expired"])
-      .order("created_at"),
-  ]);
-
-  // Cast necesario: sin tipos de Database generados, supabase-js infiere los
-  // embeds to-one como arrays, pero PostgREST responde objetos en runtime.
-  const accepted: InvitedParent[] = (
-    (linkedResult.data ?? []) as unknown as ParentChildRow[]
-  ).flatMap((row) =>
-    row.users
-      ? [
-          {
-            kind: "accepted" as const,
-            name: row.users.full_name,
-            relationshipLabel: RELATIONSHIP_LABELS[row.relationship],
-            status: "active" as const,
-          },
-        ]
-      : [],
-  );
+  const { data } = await supabase
+    .from("invitations")
+    .select("created_at, full_name, relationship, status, expires_at")
+    .eq("child_id", childId)
+    .in("status", ["pending", "expired", "accepted"])
+    .order("created_at");
 
   const now = Date.now();
 
-  const invited: InvitedParent[] = (
-    (invitationResult.data ?? []) as unknown as InvitationRow[]
-  ).map((row) => ({
-    kind: "invitation" as const,
+  return ((data ?? []) as InvitationRow[]).map((row) => ({
+    kind: row.status === "accepted" ? ("accepted" as const) : ("invitation" as const),
     name: row.full_name,
     relationshipLabel: RELATIONSHIP_LABELS[row.relationship],
     status:
-      row.status === "expired" || new Date(row.expires_at).getTime() < now
-        ? ("expired" as const)
-        : ("pending" as const),
+      row.status === "accepted"
+        ? ("active" as const)
+        : row.status === "expired" || new Date(row.expires_at).getTime() < now
+          ? ("expired" as const)
+          : ("pending" as const),
   }));
-
-  return [...accepted, ...invited];
 }
 
 // Cuántos padres tiene cada niño (aceptados + invitaciones pendientes vigentes).

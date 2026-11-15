@@ -117,26 +117,27 @@ Cambios de estado existentes: `LinkedParent` de `lib/kids.ts` pasa a consumirse 
 
 ## Acceptance criteria
 
-- [ ] Existe la migración en `supabase/migrations/` y `list_migrations` la registra en el proyecto remoto con `invitations`, `parent_children`, los dos ENUMs y las dos funciones.
-- [ ] "Enviar invitación" con datos válidos crea una fila `invitations` `pending` con `code` de 5 caracteres, `expires_at` a 7 días e `invited_by` = usuario actual, y el botón muestra "Enviando…" mientras corre.
-- [ ] El destinatario recibe un correo desde `RESEND_FROM_EMAIL` con el nombre del niño, el código y un link `/activar-cuenta?code=XXXXX`.
-- [ ] Si Resend falla, el modal permanece abierto con error en español y la invitación queda `pending`; reenviar reutiliza el mismo código (no hay fila duplicada para el mismo niño+email).
-- [ ] Validaciones de nombre/email/parentesco siguen funcionando inline como en SPEC 06.
-- [ ] El panel "Padres vinculados" muestra las invitaciones y padres reales del niño y persiste tras recargar; sin datos muestra "sin padres vinculados".
-- [ ] Una invitación vencida (`expires_at < now()`) aparece como EXPIRADA y `validate_invitation` la marca `expired`.
-- [ ] `/activar-cuenta` sin código, con código inexistente, expirado o ya aceptado muestra su estado de error en español sin formularios de registro.
-- [ ] Con código válido, la página muestra el nombre del invitado, niño y sala, y el formulario con código y email pre-llenados no editables.
-- [ ] Activar con contraseña ≥8 y consentimiento crea el usuario Auth con `role: 'parent'` y `photo_consent` en `raw_user_meta_data`, crea la fila `parent_children`, marca la invitación `accepted` y deja la sesión iniciada en `/familia` (cookies `sb-*`).
-- [ ] Contraseña corta o consentimiento desmarcado muestran error inline y no crean cuenta.
-- [ ] Intentar activar dos veces el mismo código falla la segunda vez con error claro y no duplica `parent_children`.
-- [ ] Un padre que hace logout y entra a `/login` con sus credenciales va a `/familia`; si navega a `/kids` lo redirige a `/familia`. `caro@opendaycare.com` (staff) sigue yendo a `/`.
-- [ ] `/familia` lista en español los niños del padre (nombre, sala, edad) con placeholder del feed; `/` sin sesión redirige a `/login` (regresión SPEC 10 sigue viva).
-- [ ] No se expone `RESEND_API_KEY` ni el SDK fuera de módulos de servidor (ningún componente `"use client"` los importa).
-- [ ] `npx tsc --noEmit` y `npm run lint` pasan.
+- [x] Existe la migración en `supabase/migrations/` y `list_migrations` la registra en el proyecto remoto con `invitations`, `parent_children`, los dos ENUMs y las dos funciones.
+- [x] "Enviar invitación" con datos válidos crea una fila `invitations` `pending` con `code` de 5 caracteres, `expires_at` a 7 días e `invited_by` = usuario actual, y el botón muestra "Enviando…" mientras corre. — Evidencia: fila `JZJ2S` (pending, expira 2026-11-22, invited_by = Caro) creada desde el perfil de lucas test.
+- [x] El destinatario recibe un correo desde `RESEND_FROM_EMAIL` con el nombre del niño, el código y un link `/activar-cuenta?code=XXXXX`. — Evidencia: Resend aceptó los envíos a mankar.devv@gmail.com (`JZJ2S` y `TEG8K`); entrega confirmada por el usuario.
+- [x] Si Resend falla, el modal permanece abierto con error en español y la invitación queda `pending`; reenviar reutiliza el mismo código (no hay fila duplicada para el mismo niño+email). — Evidencia: envío a bot@example.com dejó el modal abierto con "No pudimos enviar el correo. Intentá de nuevo." y fila `pending`; el reenvío de Ana García conservó `TEG8K` con una sola fila.
+- [x] Validaciones de nombre/email/parentesco siguen funcionando inline como en SPEC 06.
+- [x] El panel "Padres vinculados" muestra las invitaciones y padres reales del niño y persiste tras recargar; sin datos muestra "sin padres vinculados". — Evidencia: Diego "Papá · cuenta activa" ACTIVO en lucas; Ana PENDIENTE/EXPIRADA en Prueba; nombre leído de `invitations` (el embed de `users` la bloqueaba RLS).
+- [x] Una invitación vencida (`expires_at < now()`) aparece como EXPIRADA y `validate_invitation` la marca `expired`. — Evidencia: `TEG8K` con expiración retrocedida → chip EXPIRADA y página "Invitación vencida".
+- [x] `/activar-cuenta` sin código, con código inexistente, expirado o ya aceptado muestra su estado de error en español sin formularios de registro. — Evidencia: `NOPE1` → "Invitación inválida"; `JZJ2S` tras activar → "Invitación ya utilizada"; `TEG8K` vencida → "Invitación vencida".
+- [x] Con código válido, la página muestra el nombre del invitado, niño y sala, y el formulario con código y email pre-llenados no editables. — Evidencia: "Hola, Diego" + "lucas test · Sala Lunas" + campos readOnly.
+- [x] Activar con contraseña ≥8 y consentimiento crea el usuario Auth con `role: 'parent'` y `photo_consent` en `raw_user_meta_data`, crea la fila `parent_children`, marca la invitación `accepted` y deja la sesión iniciada en `/familia` (cookies `sb-*`). — Evidencia: cuenta mankar.devv@gmail.com (role parent, status active), invitación accepted con accepted_at, vínculo father; sesión directa post-signUp (autoconfirm).
+- [x] Contraseña corta o consentimiento desmarcado muestran error inline y no crean cuenta.
+- [x] Intentar activar dos veces el mismo código falla la segunda vez con error claro y no duplica `parent_children`. — Evidencia: segunda visita a `?code=JZJ2S` muestra "Invitación ya utilizada" sin formulario; una única fila en `parent_children`.
+- [x] Un padre que hace logout y entra a `/login` con sus credenciales va a `/familia`; si navega a `/kids` lo redirige a `/familia`. `caro@opendaycare.com` (staff) sigue yendo a `/`. — Evidencia: login padre → /familia; /kids y / como padre → /familia; login staff → feed; captura móvil 375 incluida.
+- [x] `/familia` lista en español los niños del padre (nombre, sala, edad) con placeholder del feed; `/` sin sesión redirige a `/login` (regresión SPEC 10 sigue viva).
+- [x] No se expone `RESEND_API_KEY` ni el SDK fuera de módulos de servidor (ningún componente `"use client"` los importa). — Evidencia: grep muestra el import solo en `lib/email/invitation.ts`, consumido únicamente por `actions/kids/link-parent.ts`.
+- [x] `npx tsc --noEmit` y `npm run lint` pasan.
 
 ## Decisions
 
 - **Sí:** una sola spec para vinculación + correo + registro — decisión explícita del usuario ("No, una sola spec grande"); se acepta romper la regla del objetivo de una oración por unidad de flujo.
+- **Sí (ajuste de implementación):** el panel lee los padres aceptados desde `invitations` (`status = 'accepted'`, nombre de la fila) en lugar del embed `parent_children → users` — la policy de `users` (SPEC 09) solo permite leer la fila propia, así que el staff no puede ver `users.full_name` de otros; `parent_children` sigue siendo el vínculo autoritativo para `/familia`.
 - **Sí:** Resend SDK llamado desde Server Actions de Next.js — confirmado por el usuario; sin Edge Functions.
 - **Sí:** remitente `onboarding@resend.dev` con env `RESEND_FROM_EMAIL` — no hay dominio verificado todavía; cambiar la env basta.
 - **Sí:** correo HTML simple con link `?code=` — sin `@react-email`; el código además se muestra en el cuerpo por si el link se rompe.

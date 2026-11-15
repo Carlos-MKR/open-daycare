@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import Link from "next/link";
 import { ActivationForm } from "@/components/auth/activation-form";
 import { AuthLogo } from "@/components/auth/auth-logo";
@@ -59,6 +60,10 @@ const VIEWS: Record<
 export default async function ActivationPage({
   searchParams,
 }: PageProps<"/activar-cuenta">) {
+  // connection() marca la página como request-bound: sin sesión ni cookies que
+  // la dinamicen, supabase-js llamaría Date.now() durante el prerender.
+  await connection();
+
   const rawCode = (await searchParams).code ?? "";
   // ?code= puede repetirse en la URL; el primero manda.
   const code = (Array.isArray(rawCode) ? rawCode[0] ?? "" : rawCode).trim().toUpperCase();

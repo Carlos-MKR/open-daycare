@@ -1,5 +1,24 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Configuration (`.env.local` / `.env`)
+
+See `.env.example` for the full list. Beyond the Supabase URL and publishable key (SPEC 10), SPEC 13 requires:
+
+| Variable                | Purpose                                                              |
+| ----------------------- | -------------------------------------------------------------------- |
+| `RESEND_API_KEY`        | Resend SDK, called only from Server Actions (invitation emails).     |
+| `RESEND_FROM_EMAIL`     | Sender for invitations. `onboarding@resend.dev` until a domain is verified. |
+| `NEXT_PUBLIC_SITE_URL`  | Base URL used in activation links inside emails.                     |
+
+### Supabase Auth dependency: "Confirm email" must be OFF
+
+The invitation-based signup (SPEC 13) creates the parent account with `signUp`
+and expects a session back immediately. In the project dashboard
+(Authentication → Providers → Email → Confirmation) the **Confirm email** toggle
+must be disabled, otherwise activation cannot consume the invitation code and
+the flow asks the user to confirm an email that is never needed for this
+product (the staff already validated the invitee).
+
 ## Getting Started
 
 First, run the development server:
