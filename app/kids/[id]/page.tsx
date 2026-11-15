@@ -53,7 +53,7 @@ export default async function KidProfilePage({
                 <DetailRows kid={kid} />
               </div>
 
-              <KidProfile kid={kid} />
+              <KidProfile kid={kid} parents={[]} />
             </div>
           </div>
         </main>

@@ -21,11 +21,13 @@ type LinkParentFormErrors = Partial<
   Record<keyof LinkParentFormState, string>
 >;
 
+export type LinkParentSaveResult = { ok: boolean; error?: string };
+
 type LinkParentModalProps = {
   isOpen: boolean;
   kidName: string;
   onClose: () => void;
-  onSave: (form: LinkParentFormState) => void;
+  onSave: (form: LinkParentFormState) => Promise<LinkParentSaveResult>;
   returnFocusRef: RefObject<HTMLElement | null>;
 };
 
@@ -66,15 +68,23 @@ export function LinkParentModal({
 }: LinkParentModalProps) {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState<LinkParentFormErrors>({});
+  // Error del Server Action (DB/Resend): se muestra inline sin cerrar el modal.
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
 
   const handleClose = useCallback(() => {
+    if (saving) {
+      return;
+    }
+
     setForm(INITIAL_FORM);
     setErrors({});
+    setServerError(null);
     onClose();
-  }, [onClose]);
+  }, [onClose, saving]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -134,7 +144,7 @@ export function LinkParentModal({
     setErrors((currentErrors) => ({ ...currentErrors, [field]: undefined }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validateForm(form);
 
@@ -147,8 +157,18 @@ export function LinkParentModal({
       return;
     }
 
-    onSave(form);
-    handleClose();
+    setServerError(null);
+    setSaving(true);
+
+    const result = await onSave(form);
+
+    setSaving(false);
+
+    if (result.ok) {
+      handleClose();
+    } else {
+      setServerError(result.error ?? "No pudimos enviar la invitación.");
+    }
   }
 
   function errorId(field: keyof LinkParentFormState) {
@@ -248,23 +268,31 @@ export function LinkParentModal({
             <div className="mb-[8px] text-[12px] font-extrabold tracking-[.7px] text-[#a88526]">
               CÓDIGO DE INVITACIÓN
             </div>
-            <div className="font-display text-[34px] font-semibold tracking-[7px] text-[#8a7234]">
-              7K4P9
+            <div className="font-display text-[17px] font-semibold text-[#8a7234]">
+              Se genera al enviar
             </div>
             <div className="mt-[6px] text-[13px] text-[#a88526]">Vence en 7 días</div>
           </div>
 
+          {serverError ? (
+            <div className="mb-[14px] text-[12.5px] font-bold text-accent-deep">
+              {serverError}
+            </div>
+          ) : null}
+
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-accent-light to-accent-strong px-[16px] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)]"
+            disabled={saving}
+            className="flex w-full items-center justify-center gap-[9px] rounded-[14px] bg-gradient-to-b from-accent-light to-accent-strong px-[16px] py-[14px] text-[15.5px] font-extrabold text-white shadow-[0_10px_22px_-8px_rgba(238,129,100,.7)] disabled:opacity-70"
           >
             <SendIcon size={19} />
-            Enviar invitación
+            {saving ? "Enviando…" : "Enviar invitación"}
           </button>
           <button
             type="button"
             onClick={handleClose}
-            className="mt-[10px] w-full py-[5px] text-[14px] font-extrabold text-muted-strong"
+            disabled={saving}
+            className="mt-[10px] w-full py-[5px] text-[14px] font-extrabold text-muted-strong disabled:opacity-60"
           >
             Cancelar
           </button>
