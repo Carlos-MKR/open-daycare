@@ -1,3 +1,11 @@
+# OpenDayCare
+
+![OpenDayCare](references/opendaycare-hero-16x9.png)
+
+OpenDayCare is a platform for daycares that lets staff share the daily life of each child with their families: publications and announcements per room, child profiles with medical notes and allergies, and parent accounts created through invitation codes sent by email.
+
+**Stack:** Next.js 16 (App Router, React 19) · Tailwind CSS v4 · Supabase (Postgres + Auth, RLS-protected) · Resend for invitation emails. Fully responsive (mobile and desktop).
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Configuration (`.env.local` / `.env`)
