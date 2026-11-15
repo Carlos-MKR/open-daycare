@@ -4,9 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { FormField } from "@/components/auth/form-field";
 
-type ActivationFormState = {
-  invitationCode: string;
+type ActivationFormProps = {
+  // Datos traídos de la invitación real: no editables por el invitado.
+  code: string;
   email: string;
+};
+
+type ActivationFormState = {
   password: string;
   photoConsent: boolean;
 };
@@ -14,8 +18,6 @@ type ActivationFormState = {
 type ActivationErrors = Partial<Record<keyof ActivationFormState, string>>;
 
 const initialState: ActivationFormState = {
-  invitationCode: "7K4P9",
-  email: "lucia.fernandez@gmail.com",
   password: "",
   photoConsent: true,
 };
@@ -23,23 +25,25 @@ const initialState: ActivationFormState = {
 function validate(state: ActivationFormState): ActivationErrors {
   const errors: ActivationErrors = {};
 
-  if (!state.invitationCode) errors.invitationCode = "Ingresá tu código de invitación.";
-  if (!state.email) {
-    errors.email = "Ingresá tu email.";
-  } else if (!/^\S+@\S+\.\S+$/.test(state.email)) {
-    errors.email = "Ingresá un email válido.";
+  if (!state.password) {
+    errors.password = "Creá una contraseña.";
+  } else if (state.password.length < 8) {
+    errors.password = "La contraseña necesita al menos 8 caracteres.";
   }
-  if (!state.password) errors.password = "Creá una contraseña.";
-  if (!state.photoConsent) errors.photoConsent = "Necesitamos tu autorización para continuar.";
+
+  if (!state.photoConsent) {
+    errors.photoConsent = "Necesitamos tu autorización para continuar.";
+  }
 
   return errors;
 }
 
-export function ActivationForm() {
+export function ActivationForm({ code, email }: ActivationFormProps) {
   const router = useRouter();
   const [state, setState] = useState(initialState);
   const [errors, setErrors] = useState<ActivationErrors>({});
 
+  // Paso 8 conecta esto al action real (signUp + accept_invitation).
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validate(state);
@@ -55,19 +59,18 @@ export function ActivationForm() {
       <FormField
         id="invitation-code"
         label="CÓDIGO DE INVITACIÓN"
-        value={state.invitationCode}
-        onChange={(event) => setState({ ...state, invitationCode: event.target.value.toUpperCase() })}
-        error={errors.invitationCode}
-        className="font-display text-[18px] font-bold tracking-[3px]"
+        value={code}
+        readOnly
+        className="bg-cream font-display text-[18px] font-bold tracking-[3px] text-muted-strong"
         autoComplete="one-time-code"
       />
       <FormField
         id="activation-email"
         label="EMAIL"
         type="email"
-        value={state.email}
-        onChange={(event) => setState({ ...state, email: event.target.value })}
-        error={errors.email}
+        value={email}
+        readOnly
+        className="bg-cream text-muted-strong"
         autoComplete="email"
       />
       <FormField
