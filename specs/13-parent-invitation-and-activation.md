@@ -1,6 +1,6 @@
 # SPEC 13 — Vinculación de padre con invitación real y registro por código
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 06 (modal vincular padre), SPEC 10 (auth real), SPEC 11 (rooms/children), SPEC 12 (perfiles reales)
 > **Fecha:** 2026-11-14
 > **Objetivo:** Hacer real el flujo completo "Vincular padre": guardar la invitación en la DB, enviarla por correo con Resend desde Next.js, y permitir que el padre registre su cuenta y active el vínculo usando el código del enlace.
