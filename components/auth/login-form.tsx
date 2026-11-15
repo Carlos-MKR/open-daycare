@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { FormField } from "@/components/auth/form-field";
+import { fetchUserRole, landingPathForRole } from "@/lib/auth/role";
 import { createClient } from "@/utils/supabase/client";
 
 type LoginFormState = {
@@ -59,18 +60,21 @@ export function LoginForm() {
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: state.email,
         password: state.password,
       });
 
-      if (error) {
+      if (error || !data.user) {
         setErrors({ form: CREDENTIALS_ERROR });
         setSubmitting(false);
         return;
       }
 
-      router.push("/");
+      // SPEC 13: cada rol tiene su destino; el staff sigue yendo al feed.
+      const role = await fetchUserRole(supabase, data.user.id);
+
+      router.push(landingPathForRole(role));
       // Renderizado fresco del servidor con la cookie de sesión recién escrita.
       router.refresh();
     } catch {
