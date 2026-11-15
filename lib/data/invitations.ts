@@ -53,8 +53,9 @@ export async function fetchLinkedParents(
   }));
 }
 
-// Cuántos padres tiene cada niño (aceptados + invitaciones pendientes vigentes).
-// Una sola ronda de queries para todo el listado de /kids.
+// Cuántos padres vinculados tiene cada niño: solo los aceptados
+// (parent_children). Las invitaciones pendientes NO cuentan como vinculados.
+// Una sola query para todo el listado de /kids.
 export async function countLinkedParents(
   supabase: SupabaseServerClient,
   childIds: string[],
@@ -63,24 +64,12 @@ export async function countLinkedParents(
 
   if (childIds.length === 0) return counts;
 
-  const [linkedResult, invitationResult] = await Promise.all([
-    supabase
-      .from("parent_children")
-      .select("child_id")
-      .in("child_id", childIds),
-    supabase
-      .from("invitations")
-      .select("child_id")
-      .in("child_id", childIds)
-      .eq("status", "pending")
-      .gt("expires_at", new Date().toISOString()),
-  ]);
+  const { data } = await supabase
+    .from("parent_children")
+    .select("child_id")
+    .in("child_id", childIds);
 
-  for (const row of linkedResult.data ?? []) {
-    counts.set(row.child_id, (counts.get(row.child_id) ?? 0) + 1);
-  }
-
-  for (const row of invitationResult.data ?? []) {
+  for (const row of data ?? []) {
     counts.set(row.child_id, (counts.get(row.child_id) ?? 0) + 1);
   }
 

@@ -19,7 +19,7 @@ export type Kid = {
   medicalNotes?: string;
   avatarInitial: string;
   avatarTone: AvatarTone;
-  linkedParents: number; // aceptados + invitaciones pendientes vigentes (SPEC 13)
+  linkedParents: number; // solo padres aceptados vía parent_children (SPEC 13)
 };
 
 export type AvatarToneStyles = {

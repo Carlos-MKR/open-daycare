@@ -138,6 +138,7 @@ Cambios de estado existentes: `LinkedParent` de `lib/kids.ts` pasa a consumirse 
 
 - **Sí:** una sola spec para vinculación + correo + registro — decisión explícita del usuario ("No, una sola spec grande"); se acepta romper la regla del objetivo de una oración por unidad de flujo.
 - **Sí (ajuste de implementación):** el panel lee los padres aceptados desde `invitations` (`status = 'accepted'`, nombre de la fila) en lugar del embed `parent_children → users` — la policy de `users` (SPEC 09) solo permite leer la fila propia, así que el staff no puede ver `users.full_name` de otros; `parent_children` sigue siendo el vínculo autoritativo para `/familia`.
+- **Sí (ajuste post-aceptación, pedido del usuario):** el conteo `linkedParents` de las tarjetas solo suma padres aceptados (`parent_children`); las invitaciones pendientes se ven como chip PENDIENTE en el panel pero no cuentan como "vinculados".
 - **Sí:** Resend SDK llamado desde Server Actions de Next.js — confirmado por el usuario; sin Edge Functions.
 - **Sí:** remitente `onboarding@resend.dev` con env `RESEND_FROM_EMAIL` — no hay dominio verificado todavía; cambiar la env basta.
 - **Sí:** correo HTML simple con link `?code=` — sin `@react-email`; el código además se muestra en el cuerpo por si el link se rompe.
